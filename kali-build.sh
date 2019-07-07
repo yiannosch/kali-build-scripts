@@ -1,7 +1,70 @@
 #!/bin/bash
 
+
+##Todo:
+# 1) install burpsuite pro
+# 2) activate  nessus ?
+# 3) installed rpclient, rusers, nbtscan-unixwiz
+
+####Get latest version####
+if [ 1 -eq 0 ]; then
+	wget -qO https://github.com/yiannosch/kali-build-scripts/blob/master/kali-build.sh && bash kali-build.sh
+fi
+
+
+####--Defaults--####
+
+####--Timezone and keyboard settings--####
+keyboardApple=false       		# Using a Apple/Macintosh keyboard (non VM)?      [ --osx ]
+keyboardLayout="gb"           # Set keyboard layout                             [ --keyboard gb ]
+timezone="Europe/London"      # Set timezone location                           [ --timezone Europe/London ]
+
+
+####--(Cosmetic) Colour output--####
+RED="\033[01;31m"      # Issues/Errors
+GREEN="\033[01;32m"    # Success
+YELLOW="\033[01;33m"   # Warnings/Information
+BLUE="\033[01;34m"     # Heading
+BOLD="\033[01;01m"     # Highlight
+RESET="\033[00m"       # Normal
+
+
+######### Start ##########
+
+#Check if runnign as root. Return error otherwise
+if [[ ${EUID} -ne 0 ]]; then
+	echo -e ' '${RED}'[!]'${RESET}" This script must be ${RED}run as root${RESET}. Quitting..." 1>&2
+  exit 1
+else
+  echo -e " ${BLUE}[*]${RESET} ${BOLD}Kali Linux 2019.2 build script${RESET}"
+fi
+
+
 ####Update host####
 apt update
+
+####Detect VM environment####
+#Only VMware supported for now
+
+echo -e " ${YELLOW}[i]${RESET} Identifying running environment..."
+lspci | grep -i vmware && echo -e " ${YELLOW}[i]${RESET} VMware Detected."
+
+#Remove vmware tools and install open-vm-tools if not installed.
+VMTOOLS=/usr/bin/vmware-uninstall-tools.pl
+if [ -f "$VMTOOLS" ]; then
+  echo -e " ${YELLOW}[i]${RESET} VMwareTools found.\n nProceeding to uninstall!"
+	perl /usr/bin/vmware-uninstall-tools.pl
+	sleep 10
+else
+    echo -e " ${YELLOW}[i]${RESET} VMwareTools not found."
+fi
+
+if [ $(dpkg -l | grep -i open-vm-tools) == "" ]; then
+	echo -e " ${YELLOW}[*]${RESET} ${BOLD}open vm tools not found on the host.\nProceeding to install${RESET}"
+	apt install open-vm-tools # install open-vm-tools
+	sleep 5
+fi
+
 
 ####Install zsh from github####
 #Using installer
