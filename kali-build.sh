@@ -39,7 +39,6 @@ else
   echo -e " ${BLUE}[*]${RESET} ${BOLD}Kali Linux 2019.2 build script${RESET}"
 fi
 
-
 ####Update host####
 apt update
 
@@ -71,7 +70,7 @@ fi
 sh -c "$(wget -O- https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 
 #Change zsh theme
-ZSH_THEME="robbyrussell"
+sed -i -e 's/ZSH_THEME=.*/ZSH_THEME="robbyrussell"/g' $HOME/.zshrc
 
 #add alias in .zshrc
 echo 'alias lh="ls -lAh"\nalias la="ls -la\nalias ll="ls -l"' >> $HOME/.zshrc
