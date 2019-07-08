@@ -3,14 +3,14 @@
 
 ##Todo:
 # 1) install burpsuite pro
-# 2) activate  nessus ?
-# 3) installed rpclient, rusers, nbtscan-unixwiz
+# 2) activate nessus ?
+# 3) install rpclient, rusers, nbtscan-unixwiz
+# 4) change UI
+# 5) Change background image
+# 6) Generate ssh keys sshkeygen
 
 ####Get latest version####
-if [ 1 -eq 0 ]; then
-	wget -qO https://github.com/yiannosch/kali-build-scripts/blob/master/kali-build.sh && bash kali-build.sh
-fi
-
+wget -qO https://github.com/yiannosch/kali-build-scripts/blob/master/kali-build.sh && bash kali-build.sh
 
 ####--Defaults--####
 
@@ -52,8 +52,8 @@ lspci | grep -i vmware && echo -e " ${YELLOW}[i]${RESET} VMware Detected."
 VMTOOLS=/usr/bin/vmware-uninstall-tools.pl
 if [ -f "$VMTOOLS" ]; then
   echo -e " ${YELLOW}[i]${RESET} VMwareTools found.\n nProceeding to uninstall!"
-	perl /usr/bin/vmware-uninstall-tools.pl
-	sleep 10
+	perl /usr/bin/vmware-uninstall-tools.pl #uaser input
+	#sleep 10
 else
     echo -e " ${YELLOW}[i]${RESET} VMwareTools not found."
 fi
@@ -61,7 +61,7 @@ fi
 if [ $(dpkg -l | grep -i open-vm-tools) == "" ]; then
 	echo -e " ${YELLOW}[*]${RESET} ${BOLD}open vm tools not found on the host.\nProceeding to install${RESET}"
 	apt install open-vm-tools # install open-vm-tools
-	sleep 5
+	#sleep 5
 fi
 
 
@@ -97,7 +97,7 @@ sudo sh -c 'echo "deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ 
 sudo apt install atom
 
 
-####Install crackmapexec from docker
+####Install crackmapexec from pipenv
 
 apt install -y libssl-dev libffi-dev python-dev build-essential
 pip install --user pipenv
@@ -112,10 +112,9 @@ sed -i '4iexport PATH=$PATH:/root/.local/bin' $HOME/.zshrc
 
 ####Install Winpayloads####
 #check if docker is running
-if [[ $(service docker status) != *"active (running)"* ]]; then
+if [[ $(systemctl status docker) != *"active (running)"* ]]; then
 	echo "starting docker service"
-	docker service start
-	sleep 5
+	systemctl start docker
 fi
 docker pull charliedean07/winpayloads:latest
 
@@ -129,7 +128,7 @@ wget https://s3.amazonaws.com/downloads.eviware/soapuios/5.5.0/SoapUI-5.5.0-linu
 
 #Install SoapUI to /opt directory
 echo "Installing SoapUI"
-tar -xzf SoapUI-5.5.0-linux-bin.tar.gz -C /opt/
+tar -xzf ~/Downloads/SoapUI-5.5.0-linux-bin.tar.gz -C /opt/
 /opt/SoapUI-5.5.0/bin/testrunner.sh -r soapui-project.xml
 
 echo "Cleaning up installation files"
@@ -144,9 +143,8 @@ echo "Installing firefox addons"
 ####Install Nessus####
 echo "Installing Nessus"
 
-timeout 300 curl --progress -k -L -f "https://www.tenable.com/downloads/pages/60/downloads/9578/download_file?utf8=%E2%9C%93&i_agree_to_tenable_license_agreement=true&commit=I+Agree" -o "~/Downloads/" || echo -e ' '${RED}'[!]'${RESET}" Issue downloading 'Nessus'" 1>&2
+curl --progress -k -L -f "https://www.tenable.com/downloads/pages/60/downloads/9578/download_file?utf8=%E2%9C%93&i_agree_to_tenable_license_agreement=true&commit=I+Agree" -o "~/Downloads/" || echo -e ' '${RED}'[!]'${RESET}" Issue downloading 'Nessus'" 1>&2
 dpkg -i ~/Downloads/Nessus-*-debian6_amd64.deb
-sleep 20
 
 #wget "https://www.tenable.com/downloads/pages/60/downloads/9578/download_file?utf8=%E2%9C%93&i_agree_to_tenable_license_agreement=true&commit=I+Agree"
 
