@@ -65,6 +65,21 @@ if [ $(dpkg -l | grep -i open-vm-tools) == "" ]; then
 fi
 
 
+
+####Add gnome keyboard shortcuts####
+#Add CTRL+ALT+T for terminal, same as Ubuntu
+#Binding are hardcoded for now.
+gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/']"
+gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/ name "Terminal"
+gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/ command "gnome-terminal"
+gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/ binding "<CTRL><ALT>T"
+
+
+
+####Set background wallpaper####
+
+/usr/share/backgrounds/gnome/endless-shapes.jpg
+
 ####Install zsh from github####
 #Using installer
 sh -c "$(wget -O- https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
