@@ -8,7 +8,7 @@
 # 4) change UI
 # 5) Change background image
 # 6) Generate ssh keys sshkeygen
-
+	
 ####Get latest version####
 wget -qO https://github.com/yiannosch/kali-build-scripts/blob/master/kali-build.sh && bash kali-build.sh
 
@@ -140,10 +140,10 @@ ln -sf "/usr/share/zoneinfo/$(cat /etc/timezone)" /etc/localtime
 
 
 #### Gnome 3 Settings #####
-
+echo -e " ${YELLOW}[*]${RESET} ${BOLD}Applying changes to gnome settings${RESET}"
 #### Add gnome keyboard shortcuts ####
 #Add CTRL+ALT+T for terminal, same as Ubuntu
-#Binding are hardcoded for now.
+#Binding are hardcoded for now.	
 gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/']"
 gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/ name "Terminal"
 gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/ command "gnome-terminal"
@@ -151,18 +151,26 @@ gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/or
 
 ####Set background wallpaper####
 #Setting wallpaper of my choice for now. 
-#Will add more options in the future
+#More options will be added in a future release
 gsettings set org.gnome.desktop.background picture-uri 'file:///usr/share/backgrounds/gnome/endless-shapes.jpg'
 
 
-#### Configure gnome favourites bar ####
-echo -e " ${YELLOW}[*]${RESET} ${BOLD}Applying chnages to gnome favourites bar${RESET}"
+#Configure gnome favourites bar
 gsettings set org.gnome.shell favorite-apps "['org.gnome.Terminal.desktop', 'firefox-esr.desktop', 'org.gnome.Nautilus.desktop', 'kali-msfconsole.desktop', 'gnome-control-center.desktop', 'Burp Suite Community Edition-0.desktop', 'sublime_text.desktop', 'atom.desktop']"
 
 
+#Set theme (Kali Dark)
+gsettings set org.gnome.desktop.interface gtk-theme "Kali-X-Dark"
+#Set icon theme (Zen kali)
+gsettings set org.gnome.desktop.interface icon-theme "Zen-Kali"
+#Set power saving time (15 minutes)
+gsettings set org.gnome.desktop.session idle-delay "uint32 900"
+#Enable date on clock panel
+dconf write /org/gnome/desktop/interface/clock-show-date "true"
 
-
-
+#Change AltTab behaviour
+gsettings set org.gnome.desktop.wm.keybindings switch-applications "['<Super>Tab']"
+gsettings set org.gnome.desktop.wm.keybindings switch-windows "['<Alt>Tab']"
 
 
 
