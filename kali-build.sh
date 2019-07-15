@@ -35,15 +35,19 @@ RESET="\033[00m"       # Normal
 ######### Start ##########
 
 #Check if runnign as root. Return error otherwise
-if [[ ${EUID} -ne 0 ]]; then
-	echo -e ' '${RED}'[!]'${RESET}" This script must be ${RED}run as root${RESET}. Quitting..." 1>&2
-  exit 1
-else
-  echo -e " ${BLUE}[*]${RESET} ${BOLD}Kali Linux 2019.2 build script${RESET}"
-fi
+# if [[ ${EUID} -ne 0 ]]; then #Don't need it for now
+# 	echo -e ' '${RED}'[!]'${RESET}" This script must be ${RED}run as root${RESET}. Quitting..." 1>&2
+#   exit 1
+# else
+#   echo -e " ${BLUE}[*]${RESET} ${BOLD}Kali Linux 2019.2 build script${RESET}"
+# fi
 
-####Update host####
-apt update
+
+#### Update OS ####
+echo -e "\n $GREEN[+]$RESET Updating OS from repositories (this may take a while depending on your Internet connection & Kali version/age)"
+apt -qq update && apt -y -qq full-upgrade --fix-missing
+apt -y -qq autoclean && apt -y -qq autoremove
+
 
 ####Detect VM environment####
 #Only VMware supported for now
@@ -68,13 +72,6 @@ if [ $(dpkg -l | grep -i open-vm-tools) == "" ]; then
 fi
 
 
-
-
-#### Update OS ####
-echo -e "\n $GREEN[+]$RESET Updating OS from repositories (this may take a while depending on your Internet connection & Kali version/age)"
-apt -qq update && apt -y -qq full-upgrade --fix-missing
-apt -y -qq autoclean && apt -y -qq autoremove
-
 #Check kernel
 #Find installed kernels packages
 _KRL=$(dpkg -l | grep linux-image- | grep -vc meta)
@@ -97,12 +94,12 @@ if [ $hostname == "kali" ]; then
 	echo -e " ${YELLOW}[*]${RESET} ${BOLD}Hostname is set to default.\nNo changes applied${RESET}"
 else
 	hostname $hostname
-	#Make sure it sticks after reboot
-	file=/etc/hostname; [ -e "$file" ] && cp -n $file{,.bkup}
+	#Make sure it remains after reboot
+	file=/etc/hostname; [ -e "$file" ]
 	echo "$(hostname)" > "$file"
 
 	#Changes must applied in hosts file too
-	file=/etc/hosts; [ -e "$file" ] && cp -n $file{,.bkup}
+	file=/etc/hosts; [ -e "$file" ]
 	sed -i 's/127.0.1.1.*/127.0.1.1  '$hostname'/' "$file"
 	echo -e "127.0.0.1  localhost localhost\n127.0.0.1 $hostname" > "$file"
 	
@@ -278,7 +275,7 @@ rm $HOME/Downloads/Nessus-*-debian6_amd64.deb
 #xdg-open https://127.0.0.1:8834/
 
 #Stop the service
-systemctl disable nessusd
+#systemctl disable nessusd
 
 
 
