@@ -16,12 +16,15 @@ wget -qO https://github.com/yiannosch/kali-build-scripts/blob/master/kali-build.
 
 ####--Timezone and keyboard settings--####
 keyboardApple=false       		# Using a Apple/Macintosh keyboard (non VM)?      [ --osx ]
-keyboardLayout="gb"           # Set keyboard layout                             [ --keyboard gb ]
+keyboardlayout="gb"           # Set keyboard layout                             [ --keyboard gb ]
 timezone="Europe/London"      # Set timezone location                           [ --timezone Europe/London ]
 hostname="kali"
 inputSources="[('xkb', 'gb')]" #Set keyboard to gb                           
 # Add your preferred keyboard layouts such as [('xkb', 'gb'), ('xkb', 'us'), ('xkb', 'gr')]
 
+
+#Nessus license
+nessusKey=""
 
 ####--(Cosmetic) Colour output --####
 RED="\033[01;31m"      # Issues/Errors
@@ -116,13 +119,18 @@ if [ ! -z "$keyboardlayout" ]; then
 	sed -i 's/XKBLAYOUT=".*"/XKBLAYOUT="'$keyboardlayout'"/' "$file"
 	#[ "$keyboardApple" != "false" ] && sed -i 's/XKBVARIANT=".*"/XKBVARIANT="mac"/' "$file"   # Enable if you are using Apple based products.
 
-	#dpkg-reconfigure -f noninteractive keyboard-configuration   #dpkg-reconfigure console-setup   #dpkg-reconfigure keyboard-configuration -u    # Need to restart xserver for effect
+	dpkg-reconfigure -f noninteractive keyboard-configuration   #dpkg-reconfigure console-setup   #dpkg-reconfigure keyboard-configuration -u    # Need to restart xserver for effect
 fi
 
 
 #Change locale
-sed -i 's/^# en_/en_/' /etc/locale.gen   #en_GB en_US
+sed -i '
+s/^# en_GB/en_GB/
+s/^# en_US/en_US/
+' /etc/locale.gen   #en_GB en_US
+
 locale-gen
+
 echo -e 'LC_ALL=en_GB.UTF-8\nLANG=en_GB.UTF-8\nLANGUAGE=en_GB:en' > /etc/default/locale
 dpkg-reconfigure -f noninteractive tzdata #Reboot is required to apply changes
 
@@ -170,7 +178,6 @@ gsettings set org.gnome.desktop.wm.keybindings switch-applications "['<Super>Tab
 gsettings set org.gnome.desktop.wm.keybindings switch-windows "['<Alt>Tab']"
 
 
-
 ####Install zsh from github####
 #Using installer
 sh -c "$(wget -O- https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
@@ -185,9 +192,9 @@ echo 'alias lh="ls -lAh"\nalias la="ls -la\nalias ll="ls -l"' >> $HOME/.zshrc
 ####Install Sublime 3####
 
 wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
-sudo apt install apt-transport-https
+apt install apt-transport-https
 echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
-sudo apt install sublime-text
+apt install sublime-text
 
 #Sublime 3 packages to install#
 cd $HOME/.config/sublime-text-3/Packages
@@ -199,8 +206,8 @@ git clone https://github.com/victorporof/Sublime-HTMLPrettify.git
 
 ####Install Atom####
 wget -qO - https://packagecloud.io/AtomEditor/atom/gpgkey | sudo apt-key add -
-sudo sh -c 'echo "deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ any main" > /etc/apt/sources.list.d/atom.list'
-sudo apt install atom
+sh -c 'echo "deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ any main" > /etc/apt/sources.list.d/atom.list'
+apt install atom
 
 
 #### Install crackmapexec with pipenv ####
@@ -253,11 +260,25 @@ echo -e " ${YELLOW}[*]${RESET} ${BOLD}Installing firefox addons${RESET}"
 echo -e " ${YELLOW}[*]${RESET} ${BOLD}Installing Nessus${RESET}"
 
 #Hardcoded version number
-wget -P $HOME/Downloads/Nessus-8.5.1-debian6_amd64.deb "https://www.tenable.com/downloads/pages/60/downloads/9578/download_file?utf8=%E2%9C%93&i_agree_to_tenable_license_agreement=true&commit=I+Agree"
+wget -c "https://www.tenable.com/downloads/pages/60/downloads/9578/download_file?utf8=%E2%9C%93&i_agree_to_tenable_license_agreement=true&commit=I+Agree" -O $HOME/Downloads/Nessus-8.5.1-debian6_amd64.deb
 dpkg -i $HOME/Downloads/Nessus-*-debian6_amd64.deb
 
 #Cleaning up
 rm $HOME/Downloads/Nessus-*-debian6_amd64.deb
+#Starting the service
+systemctl start nessusd
+wait 3
+
+
+if [ ! -z "$nessusKey" ]; then
+	/opt/nessus/sbin/nessuscli fetch --register $nessusKey
+	/opt/nessus/sbin/nessusd -R
+	/opt/nessus/sbin/nessus-service -D
+	xdg-open https://127.0.0.1:8834/  #leave service running
+else
+	echo -e " ${GREEN}[*]${RESET} ${BOLD}Nessus has been installed but has not been activated${RESET}"
+	echo -e " ${RED}[*]${RESET} ${BOLD}Nessus license not provided! ${RESET}"
+fi
 
 #Download latest Nessus pro for debian/kali
 #echo -e "\n ${GREEN}[+]${RESET} Installing ${GREEN}nessus${RESET} ~ vulnerability scanner"
