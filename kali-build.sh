@@ -11,7 +11,7 @@
 # 7) ZSH is asking if you want to change your default shell during installation. get rid of this??? 
 	
 ####Get latest version####
-wget -q https://github.com/yiannosch/kali-build-scripts/blob/master/kali-build.sh && bash kali-build.sh
+#wget -q https://github.com/yiannosch/kali-build-scripts/blob/master/kali-build.sh && bash kali-build.sh
 
 ####--Defaults--####
 
