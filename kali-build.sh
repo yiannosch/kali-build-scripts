@@ -8,9 +8,10 @@
 # 4) change UI
 # 5) Change background image
 # 6) Generate ssh keys sshkeygen
+# 7) ZSH is asking if you want to change your default shell during installation. get rid of this??? 
 	
 ####Get latest version####
-wget -qO https://github.com/yiannosch/kali-build-scripts/blob/master/kali-build.sh && bash kali-build.sh
+wget -q https://github.com/yiannosch/kali-build-scripts/blob/master/kali-build.sh && bash kali-build.sh
 
 ####--Defaults--####
 
@@ -180,13 +181,22 @@ gsettings set org.gnome.desktop.wm.keybindings switch-windows "['<Alt>Tab']"
 
 ####Install zsh from github####
 #Using installer
-sh -c "$(wget -O- https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 
+
+#TODO
+#Download oh-my-zsh
+#modify install script to postpone the change of shell
+
+wget -q https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
+chmod +x install.sh
+install.sh
+export SHELL="$zsh"
 #Change zsh theme
 sed -i -e 's/ZSH_THEME=.*/ZSH_THEME="robbyrussell"/g' $HOME/.zshrc
 
 #add alias in .zshrc
 echo 'alias lh="ls -lAh"\nalias la="ls -la\nalias ll="ls -l"' >> $HOME/.zshrc
+rm install.sh
 
 
 ####Install Sublime 3####
