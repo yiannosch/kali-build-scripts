@@ -8,10 +8,12 @@
 # 4) change UI
 # 5) Change background image
 # 6) Generate ssh keys sshkeygen
-# 7) ZSH is asking if you want to change your default shell during installation. get rid of this??? 
-	
+# 7) ZSH is asking if you want to change your default shell during installation. get rid of this???
+
 ####Get latest version####
 #wget -q https://github.com/yiannosch/kali-build-scripts/blob/master/kali-build.sh && bash kali-build.sh
+
+#test
 
 ####--Defaults--####
 
@@ -20,7 +22,7 @@ keyboardApple=false       		# Using a Apple/Macintosh keyboard (non VM)?      [ 
 keyboardlayout="gb"           # Set keyboard layout                             [ --keyboard gb ]
 timezone="Europe/London"      # Set timezone location                           [ --timezone Europe/London ]
 hostname="kali"
-inputSources="[('xkb', 'gb')]" #Set keyboard to gb                           
+inputSources="[('xkb', 'gb')]" #Set keyboard to gb
 # Add your preferred keyboard layouts such as [('xkb', 'gb'), ('xkb', 'us'), ('xkb', 'gr')]
 
 
@@ -81,7 +83,7 @@ fi
 _KRL=$(dpkg -l | grep linux-image- | grep -vc meta)
 if [[ "$_KRL" -gt 1 ]]; then
   echo -e "\n $YELLOW[i]$RESET Detected multiple kernels installed"
-  #Remove kernel packages marked as rc 
+  #Remove kernel packages marked as rc
   dpkg -l | grep linux-image | grep "^rc" | cut -d " " -f 3 | xargs dpkg --purge
   KRL=$(dpkg -l | grep linux-image | grep -v meta | sort -t '.' -k 2 -g | tail -n 1 | grep "$(uname -r)")
   [[ -z "$_KRL" ]] && echo -e ' '$RED'[!]'$RESET' You are not using the latest kernel' 1>&2 && echo -e " $YELLOW[i]$RESET You have it downloaded & installed, just not using it. You need to **reboot**"
@@ -106,7 +108,7 @@ else
 	file=/etc/hosts; [ -e "$file" ]
 	sed -i 's/127.0.1.1.*/127.0.1.1  '$hostname'/' "$file"
 	echo -e "127.0.0.1  localhost localhost\n127.0.0.1 $hostname" > "$file"
-	
+
 	#Verify changes
 	echo -e " ${GREEN}[*]${RESET} ${BOLD}Hostname changed. ${RESET}"
 	hostname
@@ -149,14 +151,14 @@ ln -sf "/usr/share/zoneinfo/$(cat /etc/timezone)" /etc/localtime
 echo -e " ${YELLOW}[*]${RESET} ${BOLD}Applying changes to gnome settings${RESET}"
 #### Add gnome keyboard shortcuts ####
 #Add CTRL+ALT+T for terminal, same as Ubuntu
-#Binding are hardcoded for now.	
+#Binding are hardcoded for now.
 gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/']"
 gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/ name "Terminal"
 gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/ command "gnome-terminal"
 gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/ binding "<CTRL><ALT>T"
 
 ####Set background wallpaper####
-#Setting wallpaper of my choice for now. 
+#Setting wallpaper of my choice for now.
 #More options will be added in a future release
 gsettings set org.gnome.desktop.background picture-uri 'file:///usr/share/backgrounds/gnome/endless-shapes.jpg'
 
@@ -312,4 +314,3 @@ fi
 
 
 updatedb
-
