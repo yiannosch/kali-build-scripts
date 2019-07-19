@@ -26,10 +26,11 @@ inputSources="[('xkb', 'gb')]" #Set keyboard to gb
 # Add your preferred keyboard layouts such as [('xkb', 'gb'), ('xkb', 'us'), ('xkb', 'gr')]
 
 
-#Nessus license
-nessusKey=""
+####-- Licenses and Keys --####
+nessusKey=""           # Nessus Pro license key
+sshPass=""             # Password for ssh private key
 
-####--(Cosmetic) Colour output --####
+####-- (Cosmetic) Colour output --####
 RED="\033[01;31m"      # Issues/Errors
 GREEN="\033[01;32m"    # Success
 YELLOW="\033[01;33m"   # Warnings/Information
@@ -306,11 +307,25 @@ fi
 #/opt/nessus/sbin/nessusd -R
 #/opt/nessus/sbin/nessus-service -D
 #xdg-open https://127.0.0.1:8834/
-
 #Stop the service
 #systemctl disable nessusd
 
 
+#### SSH setup####
+
+# Install ssh server - it's already installed
+#apt -y -qq intstall openssh-server
+# Wipe existing openssh keys
+rm -f /ect/ssh/ssh_host_*
+find /root/.ssh/ -type f ! -name authorized_keys -delete 2>/dev/null   #rm -f "/root/.ssh/!(authorized_keys)" 2>/dev/null
+#Backup old user keys and generate new
+mkdir /root/.ssh/old_keys/
+root@kali:~/.ssh#  for f in /root/.ssh/*; do mv $f /root/Downloads/`basename $f `.txt 2>/dev/null; done;
+# Generate new SSH keys
+ssh-keygen -t ecdsa -b 521 -f /etc/ssh/ssh_host_ecdsa_key -P ""
+ssh-keygen -o -a 100 -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -P ""
+ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa_key -P ""
+ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -P "$sshPass"
 
 
 updatedb
