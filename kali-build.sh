@@ -192,8 +192,12 @@ gsettings set org.gnome.desktop.wm.keybindings switch-windows "['<Alt>Tab']"
 
 wget -q https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
 chmod +x install.sh
-install.sh
+./install.sh
 export SHELL="$zsh"
+
+ZSH=${ZSH:-~/.oh-my-zsh}
+
+
 #Change zsh theme
 sed -i -e 's/ZSH_THEME=.*/ZSH_THEME="robbyrussell"/g' $HOME/.zshrc
 
@@ -248,7 +252,6 @@ docker pull charliedean07/winpayloads:latest
 echo -e " ${YELLOW}[*]${RESET}${BOLD}Setup msfconsole${RESET}"
 msfdb init
 if [[ "$SHELL" == "/bin/zsh" ]]; then echo 'alias msf="msfconsole"' >> $HOME/.zshrc; fi
-
 
 #Adding postgreSQL service to startup
 update-rc.d postgresql enable
@@ -317,10 +320,13 @@ fi
 #apt -y -qq intstall openssh-server
 # Wipe existing openssh keys
 rm -f /ect/ssh/ssh_host_*
-find /root/.ssh/ -type f ! -name authorized_keys -delete 2>/dev/null   #rm -f "/root/.ssh/!(authorized_keys)" 2>/dev/null
-#Backup old user keys and generate new
-mkdir /root/.ssh/old_keys/
-root@kali:~/.ssh#  for f in /root/.ssh/*; do mv $f /root/Downloads/`basename $f `.txt 2>/dev/null; done;
+#Backup old user keys
+mkdir /root/.ssh/old_keys
+for file in $(find /root/.ssh/ -type f ! -name authorized_keys)
+do
+  mv $file /root/.ssh/old_keys/`basename $file`.old
+done
+
 # Generate new SSH keys
 ssh-keygen -t ecdsa -b 521 -f /etc/ssh/ssh_host_ecdsa_key -P ""
 ssh-keygen -o -a 100 -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -P ""
