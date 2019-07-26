@@ -50,6 +50,26 @@ RESET="\033[00m"       # Normal
 # fi
 
 
+#### Parsing command line arguments ####
+
+OPTS=`getopt -o bh --long burp,help -n 'parse-options' -- "$@"`
+
+if [ $? != 0 ] ; then echo "Failed parsing options." >&2 ; exit 1 ; fi
+echo "$OPTS"
+eval set -- "$OPTS"
+
+HELP=false
+BURP=false
+
+while true; do
+  case "$1" in
+    -b | --burp )    BURP=true; shift ;;
+    -h | --help )    HELP=true; shift ;;
+    -- ) shift; break ;;
+    * ) break ;;
+  esac
+done
+
 #### Update OS ####
 echo -e "\n $GREEN[+]$RESET Updating OS from repositories (this may take a while depending on your Internet connection & Kali version/age)"
 apt -qq update && apt -y -qq full-upgrade --fix-missing
@@ -313,6 +333,24 @@ fi
 #Stop the service
 #systemctl disable nessusd
 
+
+if [[ "$BURP" = true ]]; then
+	file="burpsuite_pro_linux*"
+	for i in $(find /root/Downloads/ . /tmp -type f -name "$file"); do
+		file=$i
+	done
+
+	if [ !file="" ]; then
+		echo -e " ${GREEN}[*]${RESET} ${BOLD}Burpsuite pro installer found\nProceeding with installation${RESET}"
+		sh $file
+		echo -e " ${YELLOW}[*]${RESET} ${BOLD}Burpsuite free will be uninstall from the system.${RESET}"
+		apt purge --auto-remove burpsuite
+	else
+		echo -e " ${RED}[*]${RESET}Burpsuite pro installer not found.${BOLD}${RESET}"
+		echo -e " ${YELLOW}[*]${RESET}Burpsuite free will be uninstall from the system.${BOLD}${RESET}"
+		apt purge --auto-remove burpsuite
+	fi
+fi
 
 #### SSH setup####
 
