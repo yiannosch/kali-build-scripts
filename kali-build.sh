@@ -203,26 +203,21 @@ gsettings set org.gnome.desktop.wm.keybindings switch-windows "['<Alt>Tab']"
 
 
 ####Install zsh from github####
-#Using installer
 
-
-#TODO
 #Download oh-my-zsh
-#modify install script to postpone the change of shell
-
 wget -q https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
 chmod +x install.sh
-./install.sh
-export SHELL="$zsh"
-
+./install.sh --unattended
 ZSH=${ZSH:-~/.oh-my-zsh}
-
+export SHELL="$ZSH"
+#Fix .zsh path, add /root/.loca/bin to PATH
+sed -i '4iexport PATH=$PATH:/root/.local/bin' $HOME/.zshrc
 
 #Change zsh theme
 sed -i -e 's/ZSH_THEME=.*/ZSH_THEME="robbyrussell"/g' $HOME/.zshrc
 
 #add alias in .zshrc
-echo 'alias lh="ls -lAh"\nalias la="ls -la\nalias ll="ls -l"' >> $HOME/.zshrc
+echo 'alias lh="ls -lAh"\nalias la="ls -la"\nalias ll="ls -l"' >> $HOME/.zshrc
 rm install.sh
 
 
@@ -255,9 +250,6 @@ git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec
 cd CrackMapExec && pipenv install
 pipenv shell
 python setup.py install
-
-#Fix .zsh path, add /root/.loca/bin to PATH
-sed -i '4iexport PATH=$PATH:/root/.local/bin' $HOME/.zshrc
 
 
 #### Install Winpayloads ####
@@ -312,7 +304,7 @@ if [ ! -z "$nessusKey" ]; then
 	/opt/nessus/sbin/nessus-service -D
 	xdg-open https://127.0.0.1:8834/  #leave service running
 else
-	echo -e " ${GREEN}[*]${RESET} ${BOLD}Nessus has been installed but has not been activated${RESET}"
+	echo -e " ${YELLOW}[*]${RESET} ${BOLD}Nessus has been installed but has not been activated${RESET}"
 	echo -e " ${RED}[*]${RESET} ${BOLD}Nessus license not provided! ${RESET}"
 fi
 
@@ -333,9 +325,11 @@ fi
 #Stop the service
 #systemctl disable nessusd
 
+#### Configuring burpsuite ####
 
 if [[ "$BURP" = true ]]; then
 	file="burpsuite_pro_linux*"
+	# Search for installer in tmp, Downloads and current directory
 	for i in $(find /root/Downloads/ . /tmp -type f -name "$file"); do
 		file=$i
 	done
@@ -343,22 +337,19 @@ if [[ "$BURP" = true ]]; then
 	if [ !file="" ]; then
 		echo -e " ${GREEN}[*]${RESET} ${BOLD}Burpsuite pro installer found\nProceeding with installation${RESET}"
 		sh $file
-		echo -e " ${YELLOW}[*]${RESET} ${BOLD}Burpsuite free will be uninstall from the system.${RESET}"
+		echo -e " ${YELLOW}[*]${RESET} ${BOLD}Burpsuite free will be uninstalled from the system.${RESET}"
 		apt purge --auto-remove burpsuite
 	else
 		echo -e " ${RED}[*]${RESET}Burpsuite pro installer not found.${BOLD}${RESET}"
-		echo -e " ${YELLOW}[*]${RESET}Burpsuite free will be uninstall from the system.${BOLD}${RESET}"
-		apt purge --auto-remove burpsuite
+		echo -e " ${YELLOW}[*]${RESET}Burpsuite free won't be removed${BOLD}${RESET}"
 	fi
 fi
 
-#### SSH setup####
+#### SSH setup ####
 
-# Install ssh server - it's already installed
-#apt -y -qq intstall openssh-server
 # Wipe existing openssh keys
 rm -f /ect/ssh/ssh_host_*
-#Backup old user keys
+# Backup old user keys
 mkdir /root/.ssh/old_keys
 for file in $(find /root/.ssh/ -type f ! -name authorized_keys)
 do
