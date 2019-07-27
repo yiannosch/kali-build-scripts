@@ -9,6 +9,7 @@
 # 5) Change background image
 # 6) Generate ssh keys sshkeygen
 # 7) ZSH is asking if you want to change your default shell during installation. get rid of this???
+# 8) Install blodhound + neo4j
 
 ####Get latest version####
 #wget -q https://github.com/yiannosch/kali-build-scripts/blob/master/kali-build.sh && bash kali-build.sh
@@ -361,6 +362,15 @@ ssh-keygen -t ecdsa -b 521 -f /etc/ssh/ssh_host_ecdsa_key -P ""
 ssh-keygen -o -a 100 -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -P ""
 ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa_key -P ""
 ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -P "$sshPass"
+
+
+#### Installing additional tools ####
+
+apt install nbtscan-unixwiz  # I prefer nbtscan-unixwiz than nbtscan
+apt install rstat-client
+apt install nfs-common
+apt install nis
+apt install rusers
 
 
 updatedb
