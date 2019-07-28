@@ -373,4 +373,9 @@ apt install nis
 apt install rusers
 
 
+# Installing bloodhound
+
+apt install bloodhound
+#http://localhost:7474
+
 updatedb
