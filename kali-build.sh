@@ -365,17 +365,13 @@ ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -P "$sshPass"
 
 
 #### Installing additional tools ####
+declare -a toolsList=("nbtscan-unixwiz" "rstat-client" "nfs-common" "nis" "rusers" "bloodhound")
 
-apt install nbtscan-unixwiz  # I prefer nbtscan-unixwiz than nbtscan
-apt install rstat-client
-apt install nfs-common
-apt install nis
-apt install rusers
+# Bloodhound url http://localhost:7474
 
+for val in ${toolsList[@]}; do
+  DEBIAN_FRONTEND=noninteractive apt -y -q install $val
+done
 
-# Installing bloodhound
-
-apt install bloodhound
-#http://localhost:7474
 
 updatedb
