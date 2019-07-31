@@ -2,7 +2,7 @@
 
 
 ##Todo:
-# 1) install burpsuite pro
+# 1) install burpsuite pro (pending)
 # 2) activate nessus ?
 # 3) install rpclient, rusers, nbtscan-unixwiz
 # 4) change UI
@@ -10,11 +10,14 @@
 # 6) Generate ssh keys sshkeygen
 # 7) ZSH is asking if you want to change your default shell during installation. get rid of this???
 # 8) Install blodhound + neo4j
+# 9) Add firefox bookmarks (pending) useful bookmarks + nessus, bloodhound
+# 10) Crete a tools folder and install more tools web, infra, web services network etc.
+
+#  tools: hoppy, drupwn, drupscan, testssl, eicar,fuzzdb, IIS_shortname scanner, qualys ssllabs, redsnarf, ysoserial, barmie, .net serial
+# unicorn,
 
 ####Get latest version####
 #wget -q https://github.com/yiannosch/kali-build-scripts/blob/master/kali-build.sh && bash kali-build.sh
-
-#test
 
 ####--Defaults--####
 
@@ -39,6 +42,9 @@ BLUE="\033[01;34m"     # Heading
 BOLD="\033[01;01m"     # Highlight
 RESET="\033[00m"       # Normal
 
+
+####--Other settings--####
+checkdns=google.com
 
 ######### Start ##########
 
@@ -70,6 +76,12 @@ while true; do
     * ) break ;;
   esac
 done
+
+#Check internet connection
+if ! nc -zw1 $checkdns 443 >/dev/null 2>&1; then
+  echo -e " ${RED}[i]${RESET} Connection failed! Please check your internet connection and run the script again!"
+  exit 1
+fi
 
 #### Update OS ####
 echo -e "\n $GREEN[+]$RESET Updating OS from repositories (this may take a while depending on your Internet connection & Kali version/age)"
@@ -279,8 +291,30 @@ echo -e " ${YELLOW}[*]${RESET} ${BOLD}Installing${RESET}"
 tar -xzf $HOME/Downloads/SoapUI-5.5.0-linux-bin.tar.gz -C /opt/
 sh /opt/SoapUI-5.5.0/bin/testrunner.sh -r soapui-project.xml
 
+#Create directory structure to dowonload tools
+echo -e " ${YELLOW}[*]${RESET} ${BOLD}Creating tools directories${RESET}"
+mkdir -p -v -Z /root/Tools/Webapp/ /root/Tools/Infrastructure/Linux /root/Tools/Infrastructure/Windows
 
-#### Install Firefox addons ####
+#Download tools
+pip install droopescan
+
+git clone https://github.com/immunIT/drupwn.git "$DRUPALDIR/drupwn"
+python3 setup.py install
+
+#ScoutSuite
+$ virtualenv -p python3 venv
+$ source venv/bin/activate
+$ pip install scoutsuite
+$ scout --help
+
+#dirble
+https://github.com/nccgroup/dirble
+
+
+#House
+https://github.com/nccgroup/house.git
+
+
 echo -e " ${YELLOW}[*]${RESET} ${BOLD}Installing firefox addons${RESET}"
 #ToDO
 
@@ -365,7 +399,7 @@ ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -P "$sshPass"
 
 
 #### Installing additional tools ####
-declare -a toolsList=("nbtscan-unixwiz" "rstat-client" "nfs-common" "nis" "rusers" "bloodhound")
+declare -a toolsList=("nbtscan-unixwiz" "rstat-client" "nfs-common" "nis" "rusers" "bloodhound" "testssl.sh")
 
 # Bloodhound url http://localhost:7474
 
