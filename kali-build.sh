@@ -364,18 +364,22 @@ fi
 
 if [[ "$BURP" = true ]]; then
 	file="burpsuite_pro_linux*"
+  common_file_locations="/root/Downloads/ $pwd /tmp"
 	# Search for installer in tmp, Downloads and current directory
 	for i in $(find /root/Downloads/ . /tmp -type f -name "$file"); do
 		file=$i
 	done
 
-	if [ !file="" ]; then
+	if [ -s $file ] && [ -x $file ]; then
 		echo -e " ${GREEN}[*]${RESET} ${BOLD}Burpsuite pro installer found\nProceeding with installation${RESET}"
 		sh $file
-		echo -e " ${YELLOW}[*]${RESET} ${BOLD}Burpsuite free will be uninstalled from the system.${RESET}"
+
+    #TODO: find a way to install burp non interactivelly 
+
+    echo -e " ${YELLOW}[*]${RESET} ${BOLD}Burpsuite free will be uninstalled from the system.${RESET}"
 		apt purge --auto-remove burpsuite
 	else
-		echo -e " ${RED}[*]${RESET}Burpsuite pro installer not found.${BOLD}${RESET}"
+		echo -e " ${RED}[!]${RESET}Burpsuite pro installer not found.${BOLD}${RESET}"
 		echo -e " ${YELLOW}[*]${RESET}Burpsuite free won't be removed${BOLD}${RESET}"
 	fi
 fi
