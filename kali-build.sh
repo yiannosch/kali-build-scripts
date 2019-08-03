@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 ##Todo:
 # 1) install burpsuite pro (pending)
 # 2) activate nessus ?
@@ -214,6 +213,8 @@ dconf write /org/gnome/desktop/interface/clock-show-date "true"
 gsettings set org.gnome.desktop.wm.keybindings switch-applications "['<Super>Tab']"
 gsettings set org.gnome.desktop.wm.keybindings switch-windows "['<Alt>Tab']"
 
+#Enable nano line numbering
+sed -i 's/^# set linenumbers/set linenumbers/' /etc/nanorc
 
 ####Install zsh from github####
 
