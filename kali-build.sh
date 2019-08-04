@@ -373,12 +373,16 @@ if [[ "$BURP" = true ]]; then
 
 	if [ -s $file ] && [ -x $file ]; then
 		echo -e " ${GREEN}[*]${RESET} ${BOLD}Burpsuite pro installer found\nProceeding with installation${RESET}"
+		#Modifying the installer to shut up
+		sed -i -e 's/com.install4j.runtime.installer.Installer/com.install4j.runtime.installer.Installer -q/g' $file
 		sh $file
 
-    #TODO: find a way to install burp non interactivelly 
-
-    echo -e " ${YELLOW}[*]${RESET} ${BOLD}Burpsuite free will be uninstalled from the system.${RESET}"
-		apt purge --auto-remove burpsuite
+		if [[ $(dpkg -l | grep -i burpsuite) != "" ]]; then
+			echo -e " ${YELLOW}[*]${RESET} ${BOLD}Burpsuite free will be uninstalled from the system.${RESET}"
+			apt purge --auto-remove burpsuite
+		else
+			echo -e " ${RED}[!]${RESET}Burpsuite free not found installed.${BOLD}${RESET}"
+		fi
 	else
 		echo -e " ${RED}[!]${RESET}Burpsuite pro installer not found.${BOLD}${RESET}"
 		echo -e " ${YELLOW}[*]${RESET}Burpsuite free won't be removed${BOLD}${RESET}"
