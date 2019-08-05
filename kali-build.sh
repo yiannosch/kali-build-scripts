@@ -408,7 +408,7 @@ ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -P "$sshPass"
 
 
 #### Installing additional tools ####
-declare -a toolsList=("nbtscan-unixwiz" "rstat-client" "nfs-common" "nis" "rusers" "bloodhound" "testssl.sh")
+declare -a toolsList=("nbtscan-unixwiz" "rstat-client" "nfs-common" "nis" "rusers" "bloodhound" "testssl.sh zstd")
 
 # Bloodhound url http://localhost:7474
 
