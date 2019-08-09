@@ -308,8 +308,15 @@ $ source venv/bin/activate
 $ pip install scoutsuite
 $ scout --help
 
-#dirble
-https://github.com/nccgroup/dirble
+
+# Download dirble latest release from github
+zipfile=`curl --silent "https://api.github.com/repos/nccgroup/dirble/releases/latest" | grep '"browser_download_url"' | grep "64-linux" | sed -E 's/.*"([^"]+)".*/\1/'`
+filename=`curl --silent "https://api.github.com/repos/nccgroup/dirble/releases/latest" | grep '"name"' | grep "64-linux" | sed -E 's/.*"([^"]+)".*/\1/'`
+wget $zipfile -O $HOME/Downloads/$filename
+# Move file to appropriate locations
+unzip -q $HOME/Downloads/$filename -d $HOME/Downloads/
+mv $HOME/Downloads/dirble/dirble /usr/local/bin/
+mv $HOME/Downloads/dirble/ /usr/share/wordlists/
 
 
 #House
@@ -340,8 +347,8 @@ if [ ! -z "$nessusKey" ]; then
 	/opt/nessus/sbin/nessus-service -D
 	xdg-open https://127.0.0.1:8834/  #leave service running
 else
+  echo -e " ${RED}[*]${RESET} ${BOLD}Nessus license not provided! ${RESET}"
 	echo -e " ${YELLOW}[*]${RESET} ${BOLD}Nessus has been installed but has not been activated${RESET}"
-	echo -e " ${RED}[*]${RESET} ${BOLD}Nessus license not provided! ${RESET}"
 fi
 
 #Download latest Nessus pro for debian/kali
@@ -379,7 +386,7 @@ if [[ "$BURP" = true ]]; then
 
 		if [[ $(dpkg -l | grep -i burpsuite) != "" ]]; then
 			echo -e " ${YELLOW}[*]${RESET} ${BOLD}Burpsuite free will be uninstalled from the system.${RESET}"
-			apt purge --auto-remove burpsuite
+			apt -qq purge --auto-remove burpsuite
 		else
 			echo -e " ${RED}[!]${RESET}Burpsuite free not found installed.${BOLD}${RESET}"
 		fi
