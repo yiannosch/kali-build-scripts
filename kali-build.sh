@@ -11,7 +11,7 @@
 # 8) Install blodhound + neo4j
 # 9) Add firefox bookmarks (pending) useful bookmarks + nessus, bloodhound
 # 10) Crete a tools folder and install more tools web, infra, web services network etc.
-
+# 11) Install EyeWitness and GoWitness
 #  tools: hoppy, drupwn, drupscan, testssl, eicar,fuzzdb, IIS_shortname scanner, qualys ssllabs, redsnarf, ysoserial, barmie, .net serial
 # unicorn,
 
@@ -43,7 +43,7 @@ RESET="\033[00m"       # Normal
 
 
 ####--Other settings--####
-checkdns=google.com
+CHECKDNS=google.com
 
 ######### Start ##########
 
@@ -77,7 +77,7 @@ while true; do
 done
 
 #Check internet connection
-if ! nc -zw1 $checkdns 443 >/dev/null 2>&1; then
+if ! nc -zw1 $CHECKDNS 443 >/dev/null 2>&1; then
   echo -e " ${RED}[i]${RESET} Connection failed! Please check your internet connection and run the script again!"
   exit 1
 fi
@@ -303,10 +303,9 @@ git clone https://github.com/immunIT/drupwn.git "$DRUPALDIR/drupwn"
 python3 setup.py install
 
 #ScoutSuite
-$ virtualenv -p python3 venv
-$ source venv/bin/activate
-$ pip install scoutsuite
-$ scout --help
+virtualenv -p python3 scoutsuite
+source scoutsuite/bin/activate
+pip install scoutsuite
 
 
 # Download dirble latest release from github
