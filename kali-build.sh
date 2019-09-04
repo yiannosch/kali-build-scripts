@@ -135,7 +135,7 @@ apt -y -qq install "linux-headers-$(uname -r)"
 #### Updating hostname to preset value. If default is selected then skip ####
 #echo -e "\n $GREEN[+]$RESET Updating hostname"
 #Default is kali
-if [ $hostname == "kali" ]; then
+if [ "$hostname" = "kali" ]; then
 	echo -e " ${YELLOW}[*]${RESET} ${BOLD}Hostname is set to default.\nNo changes applied${RESET}"
 else
 	hostname $hostname
@@ -237,16 +237,16 @@ sed -i '4iexport PATH=$PATH:/root/.local/bin' $HOME/.zshrc
 sed -i -e 's/ZSH_THEME=.*/ZSH_THEME="robbyrussell"/g' $HOME/.zshrc
 
 #add alias in .zshrc
-echo 'alias lh="ls -lAh"\nalias la="ls -la"\nalias ll="ls -l"' >> $HOME/.zshrc
+echo -e 'alias lh="ls -lAh"\nalias la="ls -la"\nalias ll="ls -l"' >> $HOME/.zshrc
 rm install.sh
 
 
 ####Install Sublime 3####
 
 wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
-apt install apt-transport-https
+apt install -y -qq apt-transport-https
 echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
-apt install sublime-text
+apt install -y sublime-text
 
 #Sublime 3 packages to install#
 cd $HOME/.config/sublime-text-3/Packages
@@ -259,7 +259,7 @@ git clone https://github.com/victorporof/Sublime-HTMLPrettify.git
 ####Install Atom####
 wget -qO - https://packagecloud.io/AtomEditor/atom/gpgkey | sudo apt-key add -
 sh -c 'echo "deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ any main" > /etc/apt/sources.list.d/atom.list'
-apt install atom
+apt install -y atom
 
 
 #### Install crackmapexec with pipenv ####
@@ -281,9 +281,9 @@ fi
 docker pull charliedean07/winpayloads:latest
 
 #### Init msfdb ####
-echo -e " ${YELLOW}[*]${RESET}${BOLD}Setup msfconsole${RESET}"
+echo " ${YELLOW}[*]${RESET}${BOLD}Setup msfconsole${RESET}"
 msfdb init
-if [[ "$SHELL" == "/bin/zsh" ]]; then echo 'alias msf="msfconsole"' >> $HOME/.zshrc; fi
+if [ "$SHELL" = "/bin/zsh" ]; then echo 'alias msf="msfconsole"' >> $HOME/.zshrc; fi
 
 #Adding postgreSQL service to startup
 update-rc.d postgresql enable
@@ -322,11 +322,6 @@ wget $zipfile -O $HOME/Downloads/$filename
 unzip -q $HOME/Downloads/$filename -d $HOME/Downloads/
 mv $HOME/Downloads/dirble/dirble /usr/local/bin/
 mv $HOME/Downloads/dirble/ /usr/share/wordlists/
-
-
-#House
-https://github.com/nccgroup/house.git
-
 
 echo -e " ${YELLOW}[*]${RESET} ${BOLD}Installing firefox addons${RESET}"
 #ToDO
