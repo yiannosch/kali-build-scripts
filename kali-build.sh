@@ -91,25 +91,31 @@ apt -y -qq autoclean && apt -y -qq autoremove
 ####Detect VM environment####
 #Only VMware supported for now
 
-echo -e " ${YELLOW}[i]${RESET} Identifying running environment..."
-lspci | grep -i vmware && echo -e " ${YELLOW}[i]${RESET} VMware Detected."
-
-#Remove vmware tools and install open-vm-tools if not installed.
-VMTOOLS=/usr/bin/vmware-uninstall-tools.pl
-if [ -f "$VMTOOLS" ]; then
-	echo -e " ${YELLOW}[i]${RESET} VMwareTools found.\n nProceeding to uninstall!"
-	perl /usr/bin/vmware-uninstall-tools.pl #uaser input
-	#sleep 10
+echo " ${YELLOW}[i]${RESET} Identifying running environment..."
+_VMWARE=$(lspci | grep -i vmware)
+if [ ! -z "$_VMWARE" ]; then
+  echo " ${YELLOW}[i]${RESET} VMware Detected."
+  #Remove vmware tools and install open-vm-tools if not installed.
+  _VMTOOLS=/usr/bin/vmware-uninstall-tools.pl
+  if [ -f "$_VMTOOLS" ]; then
+    echo " ${YELLOW}[i]${RESET} VMwareTools found.\n nProceeding to uninstall!"
+    perl /usr/bin/vmware-uninstall-tools.pl #uaser input
+    #sleep 10
+  else
+    echo " ${YELLOW}[i]${RESET} VMwareTools not found."
+  fi
+  _VMTOOLS=$(dpkg -l | grep -i 'open-vm-tools')
+  echo "${BLUE}[i]${RESET} ${BOLD}Checking for open vm tools"
+  if [  "$_VMTOOLS" = "" ]; then
+  	echo " ${YELLOW}[*]${RESET} ${BOLD}Open vm tools not found on the host.\nProceeding to install${RESET}"
+  	apt -qq -y install open-vm-tools # install open-vm-tools
+  	#sleep 5
+  else
+    echo "${GREEN}[+]${RESET} ${BOLD} Open vm tools already installed! Skipping installation."
+  fi
 else
-    echo -e " ${YELLOW}[i]${RESET} VMwareTools not found."
+  echo " ${RED}[i]${RESET} VMware platform not found. Skipping installation of VMwareTools."
 fi
-
-if [ $(dpkg -l | grep -i open-vm-tools) == "" ]; then
-	echo -e " ${YELLOW}[*]${RESET} ${BOLD}open vm tools not found on the host.\nProceeding to install${RESET}"
-	apt install open-vm-tools # install open-vm-tools
-	#sleep 5
-fi
-
 
 #Check kernel
 #Find installed kernels packages
