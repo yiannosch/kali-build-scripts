@@ -84,7 +84,7 @@ fi
 
 #### Update OS ####
 echo -e "\n $GREEN[+]$RESET Updating OS from repositories (this may take a while depending on your Internet connection & Kali version/age)"
-apt -qq update && apt -y -qq full-upgrade --fix-missing
+apt -q update && apt -y full-upgrade --fix-missing
 apt -y -qq autoclean && apt -y -qq autoremove
 
 
@@ -243,7 +243,7 @@ rm install.sh
 
 ####Install Sublime 3####
 
-wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
+wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | apt-key add -
 apt install -y -qq apt-transport-https
 echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
 apt install -y sublime-text
@@ -264,7 +264,7 @@ apt install -y atom
 
 #### Install crackmapexec with pipenv ####
 
-apt install -y -qq libssl-dev libffi-dev python-dev build-essential
+apt install -y libssl-dev libffi-dev python-dev build-essential python-pip
 pip install --user pipenv
 git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec
 cd CrackMapExec && pipenv install
@@ -294,7 +294,7 @@ echo -e " ${YELLOW}[*]${RESET} ${BOLD}Downloading SoapUI${RESET}"
 wget https://s3.amazonaws.com/downloads.eviware/soapuios/5.5.0/SoapUI-5.5.0-linux-bin.tar.gz -P ~/Downloads/
 
 #Install SoapUI to /opt directory
-echo -e " ${YELLOW}[*]${RESET} ${BOLD}Installing${RESET}"
+echo -e " ${YELLOW}[*]${RESET} ${BOLD}Installing SoapUI${RESET}"
 tar -xzf $HOME/Downloads/SoapUI-5.5.0-linux-bin.tar.gz -C /opt/
 sh /opt/SoapUI-5.5.0/bin/testrunner.sh -r soapui-project.xml
 
