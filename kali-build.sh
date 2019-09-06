@@ -245,7 +245,7 @@ rm install.sh
 
 wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | apt-key add -
 apt install -y -qq apt-transport-https
-echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
+echo "deb https://download.sublimetext.com/ apt/stable/" | tee /etc/apt/sources.list.d/sublime-text.list
 apt install -y sublime-text
 
 #Sublime 3 packages to install#
@@ -291,12 +291,16 @@ update-rc.d postgresql enable
 
 #### Install SoapUI ####
 echo -e " ${YELLOW}[*]${RESET} ${BOLD}Downloading SoapUI${RESET}"
-wget https://s3.amazonaws.com/downloads.eviware/soapuios/5.5.0/SoapUI-5.5.0-linux-bin.tar.gz -P ~/Downloads/
-
-#Install SoapUI to /opt directory
-echo -e " ${YELLOW}[*]${RESET} ${BOLD}Installing SoapUI${RESET}"
-tar -xzf $HOME/Downloads/SoapUI-5.5.0-linux-bin.tar.gz -C /opt/
-sh /opt/SoapUI-5.5.0/bin/testrunner.sh -r soapui-project.xml
+#Download the sh installer
+wget https://s3.amazonaws.com/downloads.eviware/soapuios/5.5.0/SoapUI-x64-5.5.0.sh -P ~/Downloads/
+file="/root/Downloads/SoapUI-x64-5.5.0.sh"
+# Search for installer in tmp, Downloads and current directory
+if [ -s $file ] && [ -x $file ]; then
+  echo -e " ${GREEN}[*]${RESET} ${BOLD}Modifying SoapUI installer.\Proceeding with installation${RESET}"
+  #Modifying the installer to shut up
+  sed -i -e 's/com.install4j.runtime.installer.Installer/com.install4j.runtime.installer.Installer -q/g' $file
+  sh $file
+fi
 
 #Create directory structure to dowonload tools
 echo -e " ${YELLOW}[*]${RESET} ${BOLD}Creating tools directories${RESET}"
