@@ -244,23 +244,24 @@ rm install.sh
 ####Install Sublime 3####
 
 wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | apt-key add -
+wget -qO - https://packagecloud.io/AtomEditor/atom/gpgkey | apt-key add -  #Added Atom config here to avoid updating sources multiple times
 apt install -y -qq apt-transport-https
 echo "deb https://download.sublimetext.com/ apt/stable/" | tee /etc/apt/sources.list.d/sublime-text.list
+echo "deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ any main" | tee /etc/apt/sources.list.d/atom.list
+apt -qq update
+echo -e " ${BLUE}[*]${RESET} ${BOLD}Installing Sublime 3 editor${RESET}"
 apt install -y sublime-text
 
 #Sublime 3 packages to install#
-cd $HOME/.config/sublime-text-3/Packages
 #Indent XML
-git clone https://github.com/alek-sys/sublimetext_indentxml.git
+git clone https://github.com/alek-sys/sublimetext_indentxml.git "$HOME/.config/sublime-text-3/Packages/sublimetext_indentxml"
 #HTML/CSS/JS pretify
-git clone https://github.com/victorporof/Sublime-HTMLPrettify.git
+git clone https://github.com/victorporof/Sublime-HTMLPrettify.git "$HOME/.config/sublime-text-3/Packages/Sublime-HTMLPrettify"
 
 
 ####Install Atom####
-wget -qO - https://packagecloud.io/AtomEditor/atom/gpgkey | sudo apt-key add -
-sh -c 'echo "deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ any main" > /etc/apt/sources.list.d/atom.list'
+echo -e " ${BLUE}[*]${RESET} ${BOLD}Installing Atom editor${RESET}"
 apt install -y atom
-
 
 #### Install crackmapexec with pipenv ####
 
@@ -295,11 +296,12 @@ echo -e " ${YELLOW}[*]${RESET} ${BOLD}Downloading SoapUI${RESET}"
 wget https://s3.amazonaws.com/downloads.eviware/soapuios/5.5.0/SoapUI-x64-5.5.0.sh -P ~/Downloads/
 file="/root/Downloads/SoapUI-x64-5.5.0.sh"
 # Search for installer in tmp, Downloads and current directory
-if [ -s $file ] && [ -x $file ]; then
+if [ -s $file ]; then
   echo -e " ${GREEN}[*]${RESET} ${BOLD}Modifying SoapUI installer.\Proceeding with installation${RESET}"
   #Modifying the installer to shut up
   sed -i -e 's/com.install4j.runtime.installer.Installer/com.install4j.runtime.installer.Installer -q/g' $file
   sh $file
+  rm "$file"
 fi
 
 #Create directory structure to dowonload tools
@@ -320,12 +322,13 @@ pip install scoutsuite
 
 # Download dirble latest release from github
 zipfile=`curl --silent "https://api.github.com/repos/nccgroup/dirble/releases/latest" | grep '"browser_download_url"' | grep "64-linux" | sed -E 's/.*"([^"]+)".*/\1/'`
-filename=`curl --silent "https://api.github.com/repos/nccgroup/dirble/releases/latest" | grep '"name"' | grep "64-linux" | sed -E 's/.*"([^"]+)".*/\1/'`
-wget $zipfile -O $HOME/Downloads/$filename
+file=`curl --silent "https://api.github.com/repos/nccgroup/dirble/releases/latest" | grep '"name"' | grep "64-linux" | sed -E 's/.*"([^"]+)".*/\1/'`
+wget "$zipfile" -O "$HOME/Downloads/$file"
 # Move file to appropriate locations
-unzip -q $HOME/Downloads/$filename -d $HOME/Downloads/
-mv $HOME/Downloads/dirble/dirble /usr/local/bin/
-mv $HOME/Downloads/dirble/ /usr/share/wordlists/
+unzip -q "$HOME/Downloads/$file" -d "$HOME/Downloads/"
+mv "$HOME/Downloads/dirble/dirble" /usr/local/bin/
+mv "$HOME/Downloads/dirble/" /usr/share/wordlists/
+rm "$HOME/Downloads/$file"
 
 echo -e " ${YELLOW}[*]${RESET} ${BOLD}Installing firefox addons${RESET}"
 #ToDO
@@ -419,7 +422,7 @@ ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -P "$sshPass"
 
 
 #### Installing additional tools ####
-declare -a toolsList=("nbtscan-unixwiz" "rstat-client" "nfs-common" "nis" "rusers" "bloodhound" "testssl.sh zstd")
+declare -a toolsList=("nbtscan-unixwiz" "rstat-client" "nfs-common" "nis" "rusers" "bloodhound" "testssl.sh" "zstd")
 
 # Bloodhound url http://localhost:7474
 
