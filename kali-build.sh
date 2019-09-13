@@ -203,7 +203,7 @@ gsettings set org.gnome.desktop.background picture-uri 'file:///usr/share/backgr
 
 
 #Configure gnome favourites bar
-gsettings set org.gnome.shell favorite-apps "['org.gnome.Terminal.desktop', 'firefox-esr.desktop', 'org.gnome.Nautilus.desktop', 'kali-msfconsole.desktop', 'gnome-control-center.desktop', 'Burp Suite Community Edition-0.desktop', 'sublime_text.desktop', 'atom.desktop']"
+gsettings set org.gnome.shell favorite-apps "['org.gnome.Terminal.desktop', 'firefox-esr.desktop', 'org.gnome.Nautilus.desktop', 'kali-msfconsole.desktop', 'gnome-control-center.desktop', 'kali-burpsuite.desktop', 'sublime_text.desktop', 'atom.desktop']"
 
 
 #Set theme (Kali Dark)
