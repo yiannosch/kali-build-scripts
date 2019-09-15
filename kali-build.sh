@@ -78,12 +78,12 @@ done
 
 #Check internet connection
 if ! nc -zw1 $CHECKDNS 443 >/dev/null 2>&1; then
-  echo -e " ${RED}[i]${RESET} Connection failed! Please check your internet connection and run the script again!"
+  echo -e " ${RED}[!]${RESET}${BOLD}Connection failed!${RESET} Please check your internet connection and run the script again!"
   exit 1
 fi
 
 #### Update OS ####
-echo -e "\n $GREEN[+]$RESET Updating OS from repositories (this may take a while depending on your Internet connection & Kali version/age)"
+echo -e "\n ${GREEN}[+]${RESET}${BOLD}Updating OS from repositories${RESET} (this may take a while depending on your Internet connection & Kali version/age)"
 apt -q update && apt -y full-upgrade --fix-missing
 apt -y -qq autoclean && apt -y -qq autoremove
 
@@ -91,52 +91,58 @@ apt -y -qq autoclean && apt -y -qq autoremove
 ####Detect VM environment####
 #Only VMware supported for now
 
-echo " ${YELLOW}[i]${RESET} Identifying running environment..."
-_VMWARE=$(lspci | grep -i vmware)
-if [ ! -z "$_VMWARE" ]; then
-  echo " ${YELLOW}[i]${RESET} VMware Detected."
-  #Remove vmware tools and install open-vm-tools if not installed.
-  _VMTOOLS=/usr/bin/vmware-uninstall-tools.pl
-  if [ -f "$_VMTOOLS" ]; then
-    echo " ${YELLOW}[i]${RESET} VMwareTools found.\n nProceeding to uninstall!"
-    perl /usr/bin/vmware-uninstall-tools.pl #uaser input
-    #sleep 10
-  else
-    echo " ${YELLOW}[i]${RESET} VMwareTools not found."
-  fi
-  _VMTOOLS=$(dpkg -l | grep -i 'open-vm-tools')
-  echo "${BLUE}[i]${RESET} ${BOLD}Checking for open vm tools"
-  if [  "$_VMTOOLS" = "" ]; then
-  	echo " ${YELLOW}[*]${RESET} ${BOLD}Open vm tools not found on the host.\nProceeding to install${RESET}"
-  	apt -qq -y install open-vm-tools # install open-vm-tools
-  	#sleep 5
-  else
-    echo "${GREEN}[+]${RESET} ${BOLD} Open vm tools already installed! Skipping installation."
-  fi
+echo -e " ${BLUE}[*]${RESET}${BOLD}Identifying running environment...${RESET}"
+if (dmidecode | grep -i vmware); then
+	echo -e " ${YELLOW}[i]${RESET} VMware detected."
+	#Remove vmware tools and install open-vm-tools if not installed.
+	_VMTOOLS=/usr/bin/vmware-uninstall-tools.pl
+	if [ -f "$_VMTOOLS" ]; then
+		echo -e " ${YELLOW}[i]${RESET} VMwareTools found.\n Proceeding to uninstall!"
+		perl /usr/bin/vmware-uninstall-tools.pl #uaser input
+	else
+		echo -e " ${YELLOW}[i]${RESET} VMwareTools not found."
+	fi
+	_VMTOOLS=$(dpkg -l | grep -i 'open-vm-tools')
+	echo "${YELLOW}[i]${RESET} ${BOLD}Checking for open vm tools"
+	if [  "$_VMTOOLS" = "" ]; then
+		echo " ${YELLOW}[*]${RESET} ${BOLD}Open vm tools not found on the host.\n Proceeding to install${RESET}"
+		apt -y -q install open-vm-tools # install open-vm-tools
+	else
+		echo -e " ${GREEN}[+]${RESET} ${BOLD} Open vm tools already installed! Skipping installation."
+	fi
+
+elif (dmidecode | grep -i virtualbox); then
+	echo " ${YELLOW}[i]${RESET} Virtualbox detected."
+	if [ -e "/etc/init.d/virtualbox-guest-utils" ]; then
+		echo " ${RED}[!]${RESET} Virtualbox Guest Additions are already installed. Skipping..."
+	else
+		echo -e " ${GREEN}[+]${RESET} Installing Virtualbox Guest Additions"
+		apt -y -q virtualbox-guest-utils
+	fi
 else
-  echo " ${RED}[i]${RESET} VMware platform not found. Skipping installation of VMwareTools."
+  echo -e " ${RED}[!]${RESET} VM platform cound not be found. Skipping..."
 fi
 
 #Check kernel
 #Find installed kernels packages
 _KRL=$(dpkg -l | grep linux-image- | grep -vc meta)
 if [[ "$_KRL" -gt 1 ]]; then
-  echo -e "\n $YELLOW[i]$RESET Detected multiple kernels installed"
+  echo -e " ${YELLOW}[i]${RESET}Detected multiple kernels installed"
   #Remove kernel packages marked as rc
   dpkg -l | grep linux-image | grep "^rc" | cut -d " " -f 3 | xargs dpkg --purge
   KRL=$(dpkg -l | grep linux-image | grep -v meta | sort -t '.' -k 2 -g | tail -n 1 | grep "$(uname -r)")
-  [[ -z "$_KRL" ]] && echo -e ' '$RED'[!]'$RESET' You are not using the latest kernel' 1>&2 && echo -e " $YELLOW[i]$RESET You have it downloaded & installed, just not using it. You need to **reboot**"
+  [[ -z "$_KRL" ]] && echo -e "${RED}[!]${RESET} You are not using the latest kernel" 1>&2 && echo -e " ${YELLOW}[i]${RESET} You have it downloaded & installed, just not using it. You need to **reboot**"
 fi
 
 #install linux headers
-apt -y -qq install "linux-headers-$(uname -r)"
+apt -y -q install "linux-headers-$(uname -r)"
 
 
 #### Updating hostname to preset value. If default is selected then skip ####
 #echo -e "\n $GREEN[+]$RESET Updating hostname"
 #Default is kali
 if [ "$hostname" = "kali" ]; then
-	echo -e " ${YELLOW}[*]${RESET} ${BOLD}Hostname is set to default.\nNo changes applied${RESET}"
+	echo -e " ${YELLOW}[*]${RESET} ${BOLD}Hostname is set to default.\n No changes applied${RESET}"
 else
 	hostname $hostname
 	#Make sure it remains after reboot
@@ -149,7 +155,7 @@ else
 	echo -e "127.0.0.1  localhost localhost\n127.0.0.1 $hostname" > "$file"
 
 	#Verify changes
-	echo -e " ${GREEN}[*]${RESET} ${BOLD}Hostname changed. ${RESET}"
+	echo -e " ${GREEN}[+]${RESET} ${BOLD}Hostname changed. ${RESET}"
 	hostname
 fi
 
@@ -187,7 +193,7 @@ ln -sf "/usr/share/zoneinfo/$(cat /etc/timezone)" /etc/localtime
 
 
 #### Gnome 3 Settings #####
-echo -e " ${YELLOW}[*]${RESET} ${BOLD}Applying changes to gnome settings${RESET}"
+echo -e " ${BLUE}[*]${RESET} ${BOLD}Applying changes to gnome settings${RESET}"
 #### Add gnome keyboard shortcuts ####
 #Add CTRL+ALT+T for terminal, same as Ubuntu
 #Binding are hardcoded for now.
@@ -242,7 +248,6 @@ rm install.sh
 
 
 ####Install Sublime 3####
-
 wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | apt-key add -
 wget -qO - https://packagecloud.io/AtomEditor/atom/gpgkey | apt-key add -  #Added Atom config here to avoid updating sources multiple times
 apt install -y -qq apt-transport-https
@@ -261,11 +266,11 @@ git clone https://github.com/victorporof/Sublime-HTMLPrettify.git "$HOME/.config
 
 ####Install Atom####
 echo -e " ${BLUE}[*]${RESET} ${BOLD}Installing Atom editor${RESET}"
-apt install -y atom
+apt install -y -q atom
 
 #### Install crackmapexec with pipenv ####
 
-apt install -y libssl-dev libffi-dev python-dev build-essential python-pip
+apt install -y -q libssl-dev libffi-dev python-dev build-essential python-pip
 pip install --user pipenv
 git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec
 cd CrackMapExec && pipenv install
@@ -282,7 +287,7 @@ fi
 docker pull charliedean07/winpayloads:latest
 
 #### Init msfdb ####
-echo " ${YELLOW}[*]${RESET}${BOLD}Setup msfconsole${RESET}"
+echo -e " ${BLUE}[*]${RESET}${BOLD}msfconsole setup${RESET}"
 msfdb init
 if [ "$SHELL" = "/bin/zsh" ]; then echo 'alias msf="msfconsole"' >> $HOME/.zshrc; fi
 
@@ -291,13 +296,14 @@ update-rc.d postgresql enable
 
 
 #### Install SoapUI ####
+echo -e " ${BLUE}[*]${RESET} ${BOLD}Installing SoapUI${RESET}"
 echo -e " ${YELLOW}[*]${RESET} ${BOLD}Downloading SoapUI${RESET}"
 #Download the sh installer
 wget https://s3.amazonaws.com/downloads.eviware/soapuios/5.5.0/SoapUI-x64-5.5.0.sh -P ~/Downloads/
 file="/root/Downloads/SoapUI-x64-5.5.0.sh"
 # Search for installer in tmp, Downloads and current directory
 if [ -s $file ]; then
-  echo -e " ${GREEN}[*]${RESET} ${BOLD}Modifying SoapUI installer.\Proceeding with installation${RESET}"
+  echo -e " ${YELLOW}[i]${RESET} ${BOLD}Modifying SoapUI installer.\Proceeding with installation${RESET}"
   #Modifying the installer to shut up
   sed -i -e 's/com.install4j.runtime.installer.Installer/com.install4j.runtime.installer.Installer -q/g' $file
   sh $file
@@ -305,7 +311,7 @@ if [ -s $file ]; then
 fi
 
 #Create directory structure to dowonload tools
-echo -e " ${YELLOW}[*]${RESET} ${BOLD}Creating tools directories${RESET}"
+echo -e " ${YELLOW}[i]${RESET} ${BOLD}Creating tools directories${RESET}"
 mkdir -p -v -Z /root/Tools/Webapp/ /root/Tools/Infrastructure/Linux /root/Tools/Infrastructure/Windows
 
 #Download tools
@@ -330,12 +336,12 @@ mv "$HOME/Downloads/dirble/dirble" /usr/local/bin/
 mv "$HOME/Downloads/dirble/" /usr/share/wordlists/
 rm "$HOME/Downloads/$file"
 
-echo -e " ${YELLOW}[*]${RESET} ${BOLD}Installing firefox addons${RESET}"
+echo -e "\n ${BLUE}[*]${RESET} ${BOLD}Installing useful Firefox addons${RESET}"
 #ToDO
 
 
 #### Install Nessus ####
-echo -e " ${YELLOW}[*]${RESET} ${BOLD}Installing Nessus${RESET}"
+echo -e " ${BLUE}[*]${RESET} ${BOLD}Installing Nessus${RESET}"
 
 #Hardcoded version number
 wget -c "https://www.tenable.com/downloads/pages/60/downloads/9578/download_file?utf8=%E2%9C%93&i_agree_to_tenable_license_agreement=true&commit=I+Agree" -O $HOME/Downloads/Nessus-8.5.1-debian6_amd64.deb
@@ -354,8 +360,8 @@ if [ ! -z "$nessusKey" ]; then
 	/opt/nessus/sbin/nessus-service -D
 	xdg-open https://127.0.0.1:8834/  #leave service running
 else
-  echo -e " ${RED}[*]${RESET} ${BOLD}Nessus license not provided! ${RESET}"
-	echo -e " ${YELLOW}[*]${RESET} ${BOLD}Nessus has been installed but has not been activated${RESET}"
+  echo -e " ${RED}[!]${RESET} ${BOLD}Nessus license not provided!${RESET}"
+  echo -e " ${YELLOW}[*]${RESET} ${BOLD}Nessus has been installed but has not been activated${RESET}"
 fi
 
 #Download latest Nessus pro for debian/kali
@@ -393,7 +399,7 @@ if [[ "$BURP" = true ]]; then
 
 		if [[ $(dpkg -l | grep -i burpsuite) != "" ]]; then
 			echo -e " ${YELLOW}[*]${RESET} ${BOLD}Burpsuite free will be uninstalled from the system.${RESET}"
-			apt -qq purge --auto-remove burpsuite
+			apt -q purge --auto-remove burpsuite
 		else
 			echo -e " ${RED}[!]${RESET}Burpsuite free not found installed.${BOLD}${RESET}"
 		fi
@@ -432,3 +438,6 @@ done
 
 
 updatedb
+echo -e " ${BLUE}[***]${RESET}${BOLD} Installation finished. A reboot is require to apply all changes.${RESET}\n Would you like to reboot know [Y/n]?"
+
+
