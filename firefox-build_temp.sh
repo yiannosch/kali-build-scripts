@@ -21,22 +21,22 @@ ffpath="$(find ~/.mozilla/firefox/*.default*/ -maxdepth 0 -mindepth 0 -type d -n
 mkdir -p "${ffpath}/"
 
 # Wappalyzer
-echo -e " ${YELLOW}[i]${RESET} Downloading {YELLOW}{BOLD}Wappalyzer${RESET}"
+echo -e " ${YELLOW}[i]${RESET} Downloading ${YELLOW}${BOLD}Wappalyzer${RESET}"
 timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/3204419/wappalyzer-5.8.3-fx.xpi?src=dp-btn-primary" -o "$ffpath/wappalyzer@crunchlabz.com.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}Wappalyzer${RESET}" 1>&2
 # Foxyproxy standard
-echo -e " ${YELLOW}[i]${RESET} Downloading {YELLOW}{BOLD}FoxyProxy standard${RESET}"
+echo -e " ${YELLOW}[i]${RESET} Downloading ${YELLOW}${BOLD}FoxyProxy standard${RESET}"
 timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/3348763/foxyproxy_standard-6.6.2-an+fx.xpi?src=dp-btn-primary" -o "$ffpath/foxyproxy@eric.h.jung.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}FoxyProxy standard${RESET}" 1>&2
 # Cookies and headers analyser
-echo -e " ${YELLOW}[i]${RESET} Downloading {YELLOW}{BOLD}Cookies and headers analyser${RESET}"
+echo -e " ${YELLOW}[i]${RESET} Downloading ${YELLOW}${BOLD}Cookies and headers analyser${RESET}"
 timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/858683/cookies_and_http_headers_analyser-2.6-an+fx-windows.xpi?src=dp-btn-primary" -o "$ffpath/{637ac5a9-47b3-475b-b724-f455f5a56897}.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}Cookies and HTTP headers analyser${RESET}" 1>&2
 # Web developer toolbar
-echo -e " ${YELLOW}[i]${RESET} Downloading {YELLOW}{BOLD}Web developer toolbar${RESET}"
+echo -e " ${YELLOW}[i]${RESET} Downloading ${YELLOW}${BOLD}Web developer toolbar${RESET}"
 timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/773845/web_developer-2.0.1-an+fx.xpi?src=dp-btn-primary" -o "$ffpath/{c45c406e-ab73-11d8-be73-000a95be3b12}.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}Web developer toolbar${RESET}" 1>&2
 # Cookie editor
-echo -e " ${YELLOW}[i]${RESET} Downloading {YELLOW}{BOLD}Cookie editor${RESET}"
+echo -e " ${YELLOW}[i]${RESET} Downloading ${YELLOW}${BOLD}Cookie editor${RESET}"
 timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/1132754/cookie_editor-0.1.3.1-an+fx.xpi?src=dp-btn-primary" -o "$ffpath/{48df221a-8316-4d17-9191-7fc5ea5f14c0}.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}Cookie editor${RESET}" 1>&2
 # React developer tools
-echo -e " ${YELLOW}[i]${RESET} Downloading {YELLOW}{BOLD}React developer tools${RESET}"
+echo -e " ${YELLOW}[i]${RESET} Downloading ${YELLOW}${BOLD}React developer tools${RESET}"
 timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/1209034/react_developer_tools-3.6.0-fx.xpi?src=dp-btn-primary" -o "$ffpath/@react-devtools.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}React developer tools${RESET}" 1>&2
 
 #--- Installing extensions
@@ -59,6 +59,7 @@ sleep 5s
 
 #Enable plugins
 FILE=$(find ~/.mozilla/firefox/*.default*/ -maxdepth 1 -type f -name 'extensions.json' -print -quit)
+if [ ! -e "$FILE" ] || [ -z "$FILE" ]; then
   echo -e " ${RED}[!]${RESET}${BOLD} extensions.js${RESET} not found! "
 else
   echo -e " ${GREEN}[+]${RESET} Enabled ${GREEN}Firefox's extensions${RESET} "
@@ -74,12 +75,13 @@ FILE=$(find ~/.mozilla/firefox/*.default*/ -maxdepth 1 -type f -name 'prefs.js' 
 if [ ! -e "$FILE" ] || [ -z "$FILE" ]; then
   echo -e " ${RED}[!]${RESET}${BOLD} prefs.js${RESET} not found! "
 else
-  echo 'user_pref("extensions.autoDiableScopes", 14);' >> "$FILE"
+  echo 'user_pref("extensions.autoDisableScopes", 14);' >> "$FILE"
 fi
 
+timeout 5 firefox >/dev/null 2>&1
 # Configure Foxyproxy
 FILE=$(find ~/.mozilla/firefox/*.default*/ -maxdepth 1 -type f -name 'storage-sync.sqlite')
-if [ -z "$FILE" ]; then
+if [ ! -e "$FILE" ] || [ -z "$FILE" ]; then
   echo -e " ${RED}[!]${RESET}Something went wrong with the${RED}${BOLD} FoxyProxy${RESET} Firefox extension (did any extensions install?).\n Skipping..." 1>&2
 else
   # Flash the db. This will delete any existing entries
