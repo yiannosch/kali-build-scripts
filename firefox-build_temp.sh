@@ -8,10 +8,9 @@ BLUE="\033[01;34m"     # Heading
 BOLD="\033[01;01m"     # Highlight
 RESET="\033[00m"       # Normal
 
-# Start Firefox for first time
-timeout 5 firefox >/dev/null 2>&1
-sleep 3s
-
+# Start Firefox for first time, background process
+firefox-esr &
+sleep 3s                    # Add delay to make sure that the FF profile has been created
 #--- Configure firefox
 echo -e "\n ${BLUE}[*]${RESET} Installing useful${BLUE}Firefox${RESET} addons"
 
@@ -52,10 +51,10 @@ function random_key() {
  od -A n -t u -N 4 /dev/urandom
 }
 
-# Restarting Firfox
-echo -e " ${YELLOW}[i]${RESET} Restarting Firefox..."
-timeout 5 firefox >/dev/null 2>&1
-sleep 5s
+
+# Kill firefox processes gracefully!
+kill -s SIGTERM $(ps -e | grep firefox-esr | awk '{print $1}')
+sleep 3s
 
 #Enable plugins
 FILE=$(find ~/.mozilla/firefox/*.default*/ -maxdepth 1 -type f -name 'extensions.json' -print -quit)
@@ -67,9 +66,6 @@ else
   sed -i 's/"userDisabled":true,/"userDisabled":false,/g' "$FILE"    # Force them all!
 fi
 
-# Killall firefox processes
-timeout 5 killall -9 -q -w firefox-esr >/dev/null
-
 # Enable addons. Firefox must be closed.
 FILE=$(find ~/.mozilla/firefox/*.default*/ -maxdepth 1 -type f -name 'prefs.js' -print -quit)
 if [ ! -e "$FILE" ] || [ -z "$FILE" ]; then
@@ -78,7 +74,11 @@ else
   echo 'user_pref("extensions.autoDisableScopes", 14);' >> "$FILE"
 fi
 
-timeout 5 firefox >/dev/null 2>&1
+# Restarting Firfox
+echo -e " ${YELLOW}[i]${RESET} Restarting Firefox..."
+timeout 8 firefox >/dev/null 2>&1
+sleep 3s
+
 # Configure Foxyproxy
 FILE=$(find ~/.mozilla/firefox/*.default*/ -maxdepth 1 -type f -name 'storage-sync.sqlite')
 if [ ! -e "$FILE" ] || [ -z "$FILE" ]; then
