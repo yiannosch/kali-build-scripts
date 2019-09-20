@@ -41,8 +41,11 @@ BLUE="\033[01;34m"     # Heading
 BOLD="\033[01;01m"     # Highlight
 RESET="\033[00m"       # Normal
 
+####-- Monitor progress --####
+STAGE=0                                                           # Where are we up to
+TOTAL="$( grep '(${STAGE}/${TOTAL})' $0 | wc -l;(( TOTAL-- )))"   # How many things have we got todo
 
-####--Other settings--####
+####-- Other settings --####
 CHECKDNS=google.com
 
 ######### Start ##########
@@ -77,21 +80,26 @@ while true; do
 done
 
 #Check internet connection
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Checking ${BLUE}Internet access${RESET}"
 if ! nc -zw1 $CHECKDNS 443 >/dev/null 2>&1; then
-  echo -e " ${RED}[!]${RESET}${BOLD}Connection failed!${RESET} Please check your internet connection and run the script again!"
+  echo -e " ${RED}[!]${RESET}${BOLD}Connection failed!${RESET} Please check your internet connection and run the script again!" 1>&2
   exit 1
+else
+  echo -e " ${GREEN}[+]${RESET} ${GREEN}Detected Internet access${RESET}" 1>&2
 fi
 
 #### Update OS ####
-echo -e "\n ${GREEN}[+]${RESET}${BOLD}Updating OS from repositories${RESET} (this may take a while depending on your Internet connection & Kali version/age)"
+(( STAGE++ ))
+echo -e "\n ${GREEN}[+]${RESET} (${STAGE}/${TOTAL})${BOLD} Updating OS from repositories${RESET} (this may take a while depending on your Internet connection & Kali version/age)"
 apt -q update && apt -y full-upgrade --fix-missing
 apt -y -qq autoclean && apt -y -qq autoremove
 
 
 ####Detect VM environment####
 #Only VMware supported for now
-
-echo -e " ${BLUE}[*]${RESET}${BOLD}Identifying running environment...${RESET}"
+(( STAGE++ ))
+echo -e " ${BLUE}[*]${RESET} (${STAGE}/${TOTAL})${BOLD} Identifying running environment...${RESET}"
 if (dmidecode | grep -i vmware); then
 	echo -e " ${YELLOW}[i]${RESET} VMware detected."
 	#Remove vmware tools and install open-vm-tools if not installed.
@@ -125,6 +133,8 @@ fi
 
 #Check kernel
 #Find installed kernels packages
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Checking ${BLUE}kernel version ${RESET}"
 _KRL=$(dpkg -l | grep linux-image- | grep -vc meta)
 if [[ "$_KRL" -gt 1 ]]; then
   echo -e " ${YELLOW}[i]${RESET}Detected multiple kernels installed"
@@ -135,6 +145,8 @@ if [[ "$_KRL" -gt 1 ]]; then
 fi
 
 #install linux headers
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Installing ${BLUE}kernel headers${RESET}"
 apt -y -q install "linux-headers-$(uname -r)"
 
 
@@ -170,7 +182,6 @@ if [ ! -z "$keyboardlayout" ]; then
 	dpkg-reconfigure -f noninteractive keyboard-configuration   #dpkg-reconfigure console-setup   #dpkg-reconfigure keyboard-configuration -u    # Need to restart xserver for effect
 fi
 
-
 #Change locale
 sed -i '
 s/^# en_GB/en_GB/
@@ -192,7 +203,6 @@ ln -sf "/usr/share/zoneinfo/$(cat /etc/timezone)" /etc/localtime
 
 
 
-#### Gnome 3 Settings #####
 echo -e " ${BLUE}[*]${RESET} ${BOLD}Applying changes to gnome settings${RESET}"
 #### Add gnome keyboard shortcuts ####
 #Add CTRL+ALT+T for terminal, same as Ubuntu
@@ -207,10 +217,8 @@ gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/or
 #More options will be added in a future release
 gsettings set org.gnome.desktop.background picture-uri 'file:///usr/share/backgrounds/gnome/endless-shapes.jpg'
 
-
 #Configure gnome favourites bar
 gsettings set org.gnome.shell favorite-apps "['org.gnome.Terminal.desktop', 'firefox-esr.desktop', 'org.gnome.Nautilus.desktop', 'kali-msfconsole.desktop', 'gnome-control-center.desktop', 'kali-burpsuite.desktop', 'sublime_text.desktop', 'atom.desktop']"
-
 
 #Set theme (Kali Dark)
 gsettings set org.gnome.desktop.interface gtk-theme "Kali-X-Dark"
@@ -229,7 +237,6 @@ gsettings set org.gnome.desktop.wm.keybindings switch-windows "['<Alt>Tab']"
 sed -i 's/^# set linenumbers/set linenumbers/' /etc/nanorc
 
 ####Install zsh from github####
-
 #Download oh-my-zsh
 wget -q https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
 chmod +x install.sh
@@ -428,7 +435,7 @@ ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -P "$sshPass"
 
 
 #### Installing additional tools ####
-declare -a toolsList=("nbtscan-unixwiz" "rstat-client" "nfs-common" "nis" "rusers" "bloodhound" "testssl.sh" "zstd")
+declare -a toolsList=("nbtscan-unixwiz" "rstat-client" "nfs-common" "nis" "rusers" "bloodhound" "testssl.sh" "zstd" "terminator")
 
 # Bloodhound url http://localhost:7474
 
@@ -439,5 +446,3 @@ done
 
 updatedb
 echo -e " ${BLUE}[***]${RESET}${BOLD} Installation finished. A reboot is require to apply all changes.${RESET}\n Would you like to reboot know [Y/n]?"
-
-
