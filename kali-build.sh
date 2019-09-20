@@ -152,7 +152,9 @@ apt -y -q install "linux-headers-$(uname -r)"
 
 #### Updating hostname to preset value. If default is selected then skip ####
 #echo -e "\n $GREEN[+]$RESET Updating hostname"
-#Default is kali
+#Default hostname is kali
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Checking ${BLUE}hostname${RESET}"
 if [ "$hostname" = "kali" ]; then
 	echo -e " ${YELLOW}[*]${RESET} ${BOLD}Hostname is set to default.\n No changes applied${RESET}"
 else
@@ -174,6 +176,8 @@ fi
 #### Configure keyboard layout ####
 
 #--- Configure keyboard layout
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Configuring ${BLUE}keyboard layout${RESET}"
 if [ ! -z "$keyboardlayout" ]; then
 	file=/etc/default/keyboard; #[ -e "$file" ] && cp -n $file{,.bkup}
 	sed -i 's/XKBLAYOUT=".*"/XKBLAYOUT="'$keyboardlayout'"/' "$file"
@@ -197,16 +201,17 @@ dpkg-reconfigure -f noninteractive tzdata #Reboot is required to apply changes
 gsettings set org.gnome.desktop.input-sources sources "$inputSources"
 
 #--- Changing time zone
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Configuring ${BLUE}timezone${RESET}"
 [ -z "$timezone" ] && timezone=Etc/UTC     #Etc/GMT vs Etc/UTC vs UTC
 echo "$timezone" > /etc/timezone           #Default is Europe/London
 ln -sf "/usr/share/zoneinfo/$(cat /etc/timezone)" /etc/localtime
 
-
-
-echo -e " ${BLUE}[*]${RESET} ${BOLD}Applying changes to gnome settings${RESET}"
 #### Add gnome keyboard shortcuts ####
 #Add CTRL+ALT+T for terminal, same as Ubuntu
-#Binding are hardcoded for now.
+#Bindings are hardcoded for now.
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Applying changes to GNOME settings"
 gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/']"
 gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/ name "Terminal"
 gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/ command "gnome-terminal"
@@ -238,6 +243,9 @@ sed -i 's/^# set linenumbers/set linenumbers/' /etc/nanorc
 
 ####Install zsh from github####
 #Download oh-my-zsh
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Installing ${BLUE}zsh shell ${RESET}"
+
 wget -q https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh
 chmod +x install.sh
 ./install.sh --unattended
@@ -255,16 +263,19 @@ rm install.sh
 
 
 ####Install Sublime 3####
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Installing ${BLUE}Sublime 3 editor ${RESET}"
 wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | apt-key add -
 wget -qO - https://packagecloud.io/AtomEditor/atom/gpgkey | apt-key add -  #Added Atom config here to avoid updating sources multiple times
 apt install -y -qq apt-transport-https
 echo "deb https://download.sublimetext.com/ apt/stable/" | tee /etc/apt/sources.list.d/sublime-text.list
 echo "deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ any main" | tee /etc/apt/sources.list.d/atom.list
 apt -qq update
-echo -e " ${BLUE}[*]${RESET} ${BOLD}Installing Sublime 3 editor${RESET}"
 apt install -y sublime-text
 
 #Sublime 3 packages to install#
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Installing ${BLUE}Sublime packages ${RESET}"
 #Indent XML
 git clone https://github.com/alek-sys/sublimetext_indentxml.git "$HOME/.config/sublime-text-3/Packages/sublimetext_indentxml"
 #HTML/CSS/JS pretify
@@ -272,11 +283,13 @@ git clone https://github.com/victorporof/Sublime-HTMLPrettify.git "$HOME/.config
 
 
 ####Install Atom####
-echo -e " ${BLUE}[*]${RESET} ${BOLD}Installing Atom editor${RESET}"
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Installing ${BLUE}Atom editor ${RESET}"
 apt install -y -q atom
 
 #### Install crackmapexec with pipenv ####
-
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Installing ${BLUE}crackmapexec ${RESET}"
 apt install -y -q libssl-dev libffi-dev python-dev build-essential python-pip
 pip install --user pipenv
 git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec
@@ -286,25 +299,30 @@ python setup.py install
 
 
 #### Install Winpayloads ####
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Installing ${BLUE}Winpayloads ${RESET}"
 #check if docker is running
 if [[ $(systemctl status docker) != *"active (running)"* ]]; then
-	echo "starting docker service"
+	echo "${YELLOW}[i]${RESET} starting docker service"
 	systemctl start docker
 fi
+echo -e "${YELLOW}[i]${RESET} Pulling ${YELLOW}Docker image${RESET}..."
 docker pull charliedean07/winpayloads:latest
 
 #### Init msfdb ####
-echo -e " ${BLUE}[*]${RESET}${BOLD}msfconsole setup${RESET}"
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) msfconsole setup ${RESET}"
 msfdb init
 if [ "$SHELL" = "/bin/zsh" ]; then echo 'alias msf="msfconsole"' >> $HOME/.zshrc; fi
 
 #Adding postgreSQL service to startup
+echo -e " ${YELLOW}[i]${RESET} Enabled ${YELLOW}postgresql ${RESET}service "
 update-rc.d postgresql enable
 
 
 #### Install SoapUI ####
-echo -e " ${BLUE}[*]${RESET} ${BOLD}Installing SoapUI${RESET}"
-echo -e " ${YELLOW}[*]${RESET} ${BOLD}Downloading SoapUI${RESET}"
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Installing ${BLUE}SoapUI ${RESET}"
 #Download the sh installer
 wget https://s3.amazonaws.com/downloads.eviware/soapuios/5.5.0/SoapUI-x64-5.5.0.sh -P ~/Downloads/
 file="/root/Downloads/SoapUI-x64-5.5.0.sh"
@@ -318,7 +336,8 @@ if [ -s $file ]; then
 fi
 
 #Create directory structure to dowonload tools
-echo -e " ${YELLOW}[i]${RESET} ${BOLD}Creating tools directories${RESET}"
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Creating tools directory"
 mkdir -p -v -Z /root/Tools/Webapp/ /root/Tools/Infrastructure/Linux /root/Tools/Infrastructure/Windows
 
 #Download tools
@@ -334,6 +353,8 @@ pip install scoutsuite
 
 
 # Download dirble latest release from github
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Installing${BLUE}dirble${RESET}"
 zipfile=`curl --silent "https://api.github.com/repos/nccgroup/dirble/releases/latest" | grep '"browser_download_url"' | grep "64-linux" | sed -E 's/.*"([^"]+)".*/\1/'`
 file=`curl --silent "https://api.github.com/repos/nccgroup/dirble/releases/latest" | grep '"name"' | grep "64-linux" | sed -E 's/.*"([^"]+)".*/\1/'`
 wget "$zipfile" -O "$HOME/Downloads/$file"
@@ -343,12 +364,14 @@ mv "$HOME/Downloads/dirble/dirble" /usr/local/bin/
 mv "$HOME/Downloads/dirble/" /usr/share/wordlists/
 rm "$HOME/Downloads/$file"
 
-echo -e "\n ${BLUE}[*]${RESET} ${BOLD}Installing useful Firefox addons${RESET}"
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) ${BOLD}Installing useful Firefox addons${RESET}"
 #ToDO
 
 
 #### Install Nessus ####
-echo -e " ${BLUE}[*]${RESET} ${BOLD}Installing Nessus${RESET}"
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) ${BOLD}Installing ${BLUE}Nessus${RESET}"
 
 #Hardcoded version number
 wget -c "https://www.tenable.com/downloads/pages/60/downloads/9578/download_file?utf8=%E2%9C%93&i_agree_to_tenable_license_agreement=true&commit=I+Agree" -O $HOME/Downloads/Nessus-8.5.1-debian6_amd64.deb
@@ -389,7 +412,8 @@ fi
 #systemctl disable nessusd
 
 #### Configuring burpsuite ####
-
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) ${BOLD}Installing ${BLUE}Burpsuite${RESET}"
 if [[ "$BURP" = true ]]; then
 	file="burpsuite_pro_linux*"
   common_file_locations="/root/Downloads/ $pwd /tmp"
@@ -417,7 +441,8 @@ if [[ "$BURP" = true ]]; then
 fi
 
 #### SSH setup ####
-
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) ${BOLD}Generating SSH keys"
 # Wipe existing openssh keys
 rm -f /ect/ssh/ssh_host_*
 # Backup old user keys
@@ -435,6 +460,8 @@ ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -P "$sshPass"
 
 
 #### Installing additional tools ####
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) ${BOLD}Installing additional tools ${RESET}"
 declare -a toolsList=("nbtscan-unixwiz" "rstat-client" "nfs-common" "nis" "rusers" "bloodhound" "testssl.sh" "zstd" "terminator")
 
 # Bloodhound url http://localhost:7474
