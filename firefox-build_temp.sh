@@ -21,7 +21,7 @@ mkdir -p "${ffpath}/"
 
 # Wappalyzer
 echo -e " ${YELLOW}[i]${RESET} Downloading ${YELLOW}${BOLD}Wappalyzer${RESET}"
-timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/3204419/wappalyzer-5.8.3-fx.xpi?src=dp-btn-primary" -o "$ffpath/wappalyzer@crunchlabz.com.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}Wappalyzer${RESET}" 1>&2
+timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/3204419/wappalyzer-5.8.4-fx.xpi?src=dp-btn-primary" -o "$ffpath/wappalyzer@crunchlabz.com.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}Wappalyzer${RESET}" 1>&2
 # Foxyproxy standard
 echo -e " ${YELLOW}[i]${RESET} Downloading ${YELLOW}${BOLD}FoxyProxy standard${RESET}"
 timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/3348763/foxyproxy_standard-6.6.2-an+fx.xpi?src=dp-btn-primary" -o "$ffpath/foxyproxy@eric.h.jung.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}FoxyProxy standard${RESET}" 1>&2
@@ -36,7 +36,7 @@ echo -e " ${YELLOW}[i]${RESET} Downloading ${YELLOW}${BOLD}Cookie editor${RESET}
 timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/1132754/cookie_editor-0.1.3.1-an+fx.xpi?src=dp-btn-primary" -o "$ffpath/{48df221a-8316-4d17-9191-7fc5ea5f14c0}.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}Cookie editor${RESET}" 1>&2
 # React developer tools
 echo -e " ${YELLOW}[i]${RESET} Downloading ${YELLOW}${BOLD}React developer tools${RESET}"
-timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/1209034/react_developer_tools-3.6.0-fx.xpi?src=dp-btn-primary" -o "$ffpath/@react-devtools.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}React developer tools${RESET}" 1>&2
+timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/1209034/react_developer_tools-4.1.0-fx.xpi?src=dp-btn-primary" -o "$ffpath/@react-devtools.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}React developer tools${RESET}" 1>&2
 
 #--- Installing extensions
 for FILE in $(find "${ffpath}" -maxdepth 1 -type f -name '*.xpi'); do

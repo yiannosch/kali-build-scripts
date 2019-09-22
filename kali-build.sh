@@ -92,8 +92,9 @@ fi
 #### Update OS ####
 (( STAGE++ ))
 echo -e "\n ${GREEN}[+]${RESET} (${STAGE}/${TOTAL})${BOLD} Updating OS from repositories${RESET} (this may take a while depending on your Internet connection & Kali version/age)"
-apt -q update && apt -y full-upgrade --fix-missing
-apt -y -qq autoclean && apt -y -qq autoremove
+wait 5s
+apt -q update && APT_LISTCHANGES_FRONTEND=none apt -o Dpkg::Options::="--force-confnew" -y -q full-upgrade --fix-missing
+apt -y -q autoclean && apt -y -q autoremove
 
 
 ####Detect VM environment####
@@ -374,7 +375,7 @@ echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) ${BOLD}Installing useful Fire
 echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) ${BOLD}Installing ${BLUE}Nessus${RESET}"
 
 #Hardcoded version number
-wget -c "https://www.tenable.com/downloads/pages/60/downloads/9578/download_file?utf8=%E2%9C%93&i_agree_to_tenable_license_agreement=true&commit=I+Agree" -O $HOME/Downloads/Nessus-8.5.1-debian6_amd64.deb
+wget -c "https://www.tenable.com/downloads/api/v1/public/pages/nessus/downloads/9745/download?i_agree_to_tenable_license_agreement=true" -O $HOME/Downloads/Nessus-8.5.1-debian6_amd64.deb
 dpkg -i $HOME/Downloads/Nessus-*-debian6_amd64.deb
 
 #Cleaning up
@@ -453,9 +454,9 @@ do
 done
 
 # Generate new SSH keys
-ssh-keygen -t ecdsa -b 521 -f /etc/ssh/ssh_host_ecdsa_key -P ""
-ssh-keygen -o -a 100 -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -P ""
-ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa_key -P ""
+ssh-keygen -t ecdsa -b 521 -f /etc/ssh/ssh_host_ecdsa_key -P "" >/dev/null
+ssh-keygen -o -a 100 -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -P "" >/dev/null
+ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa_key -P "" >/dev/null
 ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -P "$sshPass"
 
 
