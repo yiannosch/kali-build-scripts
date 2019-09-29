@@ -271,8 +271,7 @@ wget -qO - https://packagecloud.io/AtomEditor/atom/gpgkey | apt-key add -  #Adde
 apt install -y -qq apt-transport-https
 echo "deb https://download.sublimetext.com/ apt/stable/" | tee /etc/apt/sources.list.d/sublime-text.list
 echo "deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ any main" | tee /etc/apt/sources.list.d/atom.list
-apt -qq update
-apt install -y -q sublime-text
+apt -qq update && apt install -y -q sublime-text
 
 #Sublime 3 packages to install#
 (( STAGE++ ))
