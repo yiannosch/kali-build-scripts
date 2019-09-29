@@ -107,17 +107,17 @@ if (dmidecode | grep -i vmware); then
 	_VMTOOLS=/usr/bin/vmware-uninstall-tools.pl
 	if [ -f "$_VMTOOLS" ]; then
 		echo -e " ${YELLOW}[i]${RESET} VMwareTools found.\n Proceeding to uninstall!"
-		perl /usr/bin/vmware-uninstall-tools.pl #uaser input
+		perl /usr/bin/vmware-uninstall-tools.pl
 	else
-		echo -e " ${YELLOW}[i]${RESET} VMwareTools not found."
+		echo -e " $YELLOW[i]$RESET VMwareTools not found."
 	fi
 	_VMTOOLS=$(dpkg -l | grep -i 'open-vm-tools')
-	echo "${YELLOW}[i]${RESET} ${BOLD}Checking for open vm tools"
+	echo "${YELLOW}[i]${RESET} ${BOLD}Checking for open-vm-tools"
 	if [  "$_VMTOOLS" = "" ]; then
-		echo " ${YELLOW}[*]${RESET} ${BOLD}Open vm tools not found on the host.\n Proceeding to install${RESET}"
+		echo -e " ${YELLOW}[i]${RESET} ${BOLD}open-vm-tools not found on the host.\n Proceeding to install${RESET}"
 		apt -y -q install open-vm-tools # install open-vm-tools
 	else
-		echo -e " ${GREEN}[+]${RESET} ${BOLD} Open vm tools already installed! Skipping installation."
+		echo -e " ${GREEN}[+]${RESET} ${BOLD}open-vm-tools already installed! Skipping installation."
 	fi
 
 elif (dmidecode | grep -i virtualbox); then
@@ -147,7 +147,7 @@ fi
 
 #install linux headers
 (( STAGE++ ))
-echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Installing ${BLUE}kernel headers${RESET}"
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Checking for ${BLUE}kernel headers${RESET}"
 apt -y -q install "linux-headers-$(uname -r)"
 
 
@@ -272,7 +272,7 @@ apt install -y -qq apt-transport-https
 echo "deb https://download.sublimetext.com/ apt/stable/" | tee /etc/apt/sources.list.d/sublime-text.list
 echo "deb [arch=amd64] https://packagecloud.io/AtomEditor/atom/any/ any main" | tee /etc/apt/sources.list.d/atom.list
 apt -qq update
-apt install -y sublime-text
+apt install -y -q sublime-text
 
 #Sublime 3 packages to install#
 (( STAGE++ ))
@@ -292,12 +292,18 @@ apt install -y -q atom
 (( STAGE++ ))
 echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Installing ${BLUE}crackmapexec ${RESET}"
 apt install -y -q libssl-dev libffi-dev python-dev build-essential python-pip
+sleep 5
 pip install --user pipenv
-git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec
-cd CrackMapExec && pipenv install
-pipenv shell
-python setup.py install
+git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec "$HOME/Downloads/"
 
+file="$HOME/.local/bin/pipenv"
+if [ -s "$file" ]; then
+	cd "$HOME/Downloads/CrackMapExec" && "$file" install
+	"$file" shell
+	python setup.py install
+else
+	echo "${RED}[!]${RESET} Something went wrong. Installation of ${RED}${BOLD}CrackMapExec ${RESET}has failed!"
+fi
 
 #### Install Winpayloads ####
 (( STAGE++ ))
@@ -306,6 +312,7 @@ echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Installing ${BLUE}Winpayloads
 if [[ $(systemctl status docker) != *"active (running)"* ]]; then
 	echo "${YELLOW}[i]${RESET} starting docker service"
 	systemctl start docker
+	sleep 5
 fi
 echo -e "${YELLOW}[i]${RESET} Pulling ${YELLOW}Docker image${RESET}..."
 docker pull charliedean07/winpayloads:latest
@@ -344,7 +351,7 @@ mkdir -p -v -Z /root/Tools/Webapp/ /root/Tools/Infrastructure/Linux /root/Tools/
 #Download tools
 pip install droopescan
 
-git clone https://github.com/immunIT/drupwn.git "$DRUPALDIR/drupwn"
+git clone https://github.com/immunIT/drupwn.git "$/root/Tools/Webapp/drupwn"
 python3 setup.py install
 
 #ScoutSuite
@@ -457,7 +464,7 @@ done
 ssh-keygen -t ecdsa -b 521 -f /etc/ssh/ssh_host_ecdsa_key -P "" >/dev/null
 ssh-keygen -o -a 100 -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -P "" >/dev/null
 ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa_key -P "" >/dev/null
-ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -P "$sshPass"
+ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -P "$sshPass" >/dev/null
 
 
 #### Installing additional tools ####
