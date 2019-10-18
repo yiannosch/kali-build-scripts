@@ -221,7 +221,7 @@ gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/or
 ####Set background wallpaper####
 #Setting wallpaper of my choice for now.
 #More options will be added in a future release
-gsettings set org.gnome.desktop.background picture-uri 'file:///usr/share/backgrounds/gnome/endless-shapes.jpg'
+gsettings set org.gnome.desktop.background picture-uri 'file:///usr/share/backgrounds/gnome/Endless-shapes.jpg'
 
 #Configure gnome favourites bar
 gsettings set org.gnome.shell favorite-apps "['org.gnome.Terminal.desktop', 'firefox-esr.desktop', 'org.gnome.Nautilus.desktop', 'kali-msfconsole.desktop', 'gnome-control-center.desktop', 'kali-burpsuite.desktop', 'sublime_text.desktop', 'atom.desktop', 'SoapUI-5.5.0-0.desktop']"
