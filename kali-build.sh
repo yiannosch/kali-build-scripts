@@ -95,7 +95,7 @@ echo -e "\n ${GREEN}[+]${RESET} (${STAGE}/${TOTAL})${BOLD} Updating OS from repo
 sleep 5
 export DEBIAN_FRONTEND=noninteractive
 apt -q update && APT_LISTCHANGES_FRONTEND=none apt -o Dpkg::Options::="--force-confnew" -y -q full-upgrade --fix-missing
-apt -y -q autoremove && apt -y -q autoclean 
+apt -y -q autoremove && apt -y -q autoclean
 
 ####Detect VM environment####
 #Only VMware supported for now
@@ -265,7 +265,7 @@ sed -i -e 's/ZSH_THEME=.*/ZSH_THEME="robbyrussell"/g' $HOME/.zshrc
 #add alias in .zshrc
 echo -e 'alias lh="ls -lAh"\nalias la="ls -la"\nalias ll="ls -l"' >> $HOME/.zshrc
 rm install.sh
-
+chsh -s /usr/bin/zsh
 
 ####Install Sublime 3####
 (( STAGE++ ))
@@ -290,22 +290,6 @@ git clone https://github.com/victorporof/Sublime-HTMLPrettify.git "$HOME/.config
 (( STAGE++ ))
 echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Installing ${BLUE}Atom editor ${RESET}"
 apt install -y -q atom
-
-#### Install crackmapexec with pipenv ####
-(( STAGE++ ))
-echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Installing ${BLUE}crackmapexec ${RESET}"
-apt install -y -q libssl-dev libffi-dev python-dev build-essential python-pip
-sleep 5
-pip install --user pipenv
-git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec "$HOME/Downloads/CrackMapExec"
-
-file="$HOME/.local/bin/pipenv"
-if [ -s "$file" ]; then
-	cd "$HOME/Downloads/CrackMapExec" && "$file" install
-	"$file" run python setup.py install
-else
-	echo "${RED}[!]${RESET} Something went wrong. Installation of ${RED}${BOLD}CrackMapExec ${RESET}has failed!"
-fi
 
 #### Install Winpayloads ####
 (( STAGE++ ))
@@ -361,7 +345,12 @@ fi
 #Create directory structure to dowonload tools
 (( STAGE++ ))
 echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Creating tools directory"
-mkdir -p -v -Z /root/Tools/Webapp/CMS/Wordpress/ /root/Tools/Webapp/CMS/Drupal/ /root/Tools/OSINT/ /root/Tools/password-cracking/wordlists/ /root/Tools/Infrastructure/Linux /root/Tools/Infrastructure/Windows
+mkdir -p -v -Z "/root/Tools/Webapp/CMS/Wordpress" "/root/Tools/Webapp/CMS/Drupal" "/root/Tools/OSINT" \
+"/root/Tools/Password-cracking/wordlists" "/root/Tools/Infrastructure/Linux" "/root/Tools/Infrastructure/Windows" \
+"/root/Tools/Mobile/Android" "/root/Tools/Mobile/iOS" "/root/Tools/Build-Reviews/Linux" "/root/Tools/Build-Reviews/Windows" \
+"/root/Tools/BuildReviews/Mac" "/root/Tools/Configuration/Cloud/AWS" "/root/Tools/Configuration/Cloud/Azure" \
+"/root/Tools/Configuration/Cloud/GCP" "/root/Tools/Configuration/Containers/Docker/" \
+"/root/Tools/Configuration/Containers/Kubernetes"
 
 #Download tools
 pip install droopescan
@@ -370,9 +359,35 @@ git clone https://github.com/immunIT/drupwn.git "/root/Tools/Webapp/CMS/Drupal/d
 python3 setup.py install
 
 #ScoutSuite
-virtualenv -p python3 scoutsuite
-source scoutsuite/bin/activate
-pip install scoutsuite
+#cd root/Tools/Configuration/Cloud/
+#virtualenv -p python3 scoutsuite
+#source scoutsuite/bin/activate
+#pip install scoutsuite
+
+file="$HOME/.local/bin/pipenv"
+if [ -s "$file" ]; then
+	mkdir "$HOME/Tools/Configuration/Cloud/ScoutSuite"
+  cd "$HOME/Tools/Configuration/Cloud/ScoutSuite" && "$file" install && "$file" run pip3 install scoutsuite
+else
+	echo "${RED}[!]${RESET} Something went wrong. Installation of ${RED}${BOLD}CrackMapExec ${RESET}has failed!"
+fi
+
+
+#### Install crackmapexec with pipenv ####
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Installing ${BLUE}crackmapexec ${RESET}"
+apt install -y -q libssl-dev libffi-dev python-dev build-essential python-pip
+sleep 5
+pip install --user pipenv
+git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec "$HOME/Tools/Infrastructure/Linux/CrackMapExec"
+
+file="$HOME/.local/bin/pipenv"
+if [ -s "$file" ]; then
+	cd "$HOME/Tools/Infrastructure/Linux/CrackMapExec" && "$file" install
+	"$file" run python setup.py install
+else
+	echo "${RED}[!]${RESET} Something went wrong. Installation of ${RED}${BOLD}CrackMapExec ${RESET}has failed!"
+fi
 
 
 # Download dirble latest release from github
@@ -490,6 +505,11 @@ echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) ${BOLD}Installing ${BLUE}Ness
 #Hardcoded version number
 wget -c "https://www.tenable.com/downloads/api/v1/public/pages/nessus/downloads/10079/download?i_agree_to_tenable_license_agreement=true" -O $HOME/Downloads/Nessus-8.5.1-debian6_amd64.deb
 dpkg -i $HOME/Downloads/Nessus-*-debian6_amd64.deb
+sleep 2
+#Cleaning up
+rm $HOME/Downloads/Nessus-*-debian6_amd64.deb
+#Starting the service
+systemctl start nessusd
 sleep 3
 
 if [ -f "/opt/nessus/sbin/nessuscli" ]; then
@@ -506,38 +526,6 @@ else
   echo -e " ${RED}[*]${RESET} ${BOLD}Oops! Something went wrong. ${RED}${BOLD}Nessus has not been installed${RESET}"
 fi
 
-#Cleaning up
-rm $HOME/Downloads/Nessus-*-debian6_amd64.deb
-#Starting the service
-systemctl start nessusd
-sleep 3
-
-if [ ! -z "$nessusKey" ]; then
-	/opt/nessus/sbin/nessuscli fetch --register $nessusKey
-	/opt/nessus/sbin/nessusd -R
-	/opt/nessus/sbin/nessus-service -D
-	xdg-open https://127.0.0.1:8834/  #leave service running
-elif
-
-
-fi
-
-#Download latest Nessus pro for debian/kali
-#echo -e "\n ${GREEN}[+]${RESET} Installing ${GREEN}nessus${RESET} ~ vulnerability scanner"
-#--- Get download link
-#xdg-open http://www.tenable.com/products/nessus/select-your-operating-system    *** #wget -q "http://downloads.nessus.org/<file>" -O /usr/local/src/nessus.deb   #***!!! Hardcoded version value
-#dpkg -i /usr/local/src/Nessus-*-debian6_*.deb
-#systemctl start nessusd
-#xdg-open http://www.tenable.com/products/nessus-home
-#/opt/nessus/sbin/nessus-adduser   #*** Doesn't automate
-##rm -f /usr/local/src/Nessus-*-debian6_*.deb
-#--- Check email
-#/opt/nessus/sbin/nessuscli fetch --register <key>   #*** Doesn't automate
-#/opt/nessus/sbin/nessusd -R
-#/opt/nessus/sbin/nessus-service -D
-#xdg-open https://127.0.0.1:8834/
-#Stop the service
-#systemctl disable nessusd
 
 #### Configuring burpsuite ####
 (( STAGE++ ))
@@ -598,6 +586,22 @@ for val in ${toolsList[@]}; do
   DEBIAN_FRONTEND=noninteractive apt -y -q install $val
 done
 
-
 updatedb
 echo -e " ${BLUE}[***]${RESET}${BOLD} Installation finished. A reboot is require to apply all changes.${RESET}\n Would you like to reboot know [Y/n]?"
+IFS=''
+while true
+do
+  read -s -n 1 key
+  if [ "$key" = "y" ]; then
+    echo -e " ${YELLOW}[i]${RESET}${BOLD} Your PC will reboot now!${RESET}"
+    sleep 3
+    reboot
+  elif [ "$key" = "n" ]; then
+    echo -e "${GREEN}${BOLD} Goodbye!!${RESET}"
+    break
+  elif [ "$key" = "" ]; then
+    echo -e " ${YELLOW}[i]${RESET}${BOLD} Your PC will reboot now!${RESET}"
+    sleep 3
+    reboot
+  fi
+done
