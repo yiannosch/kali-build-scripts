@@ -208,6 +208,24 @@ echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Configuring ${BLUE}timezone${
 echo "$timezone" > /etc/timezone           #Default is Europe/London
 ln -sf "/usr/share/zoneinfo/$(cat /etc/timezone)" /etc/localtime
 
+
+####Detect desktop manager. Support for gnome and xfce for Kali 2019.4
+
+
+
+_DMAN=$(ps -A | egrep -i "gnome|xfce")
+
+if [[ "$_DMAN" =~ "gnome" ]]; then
+    echo -e "\n ${BLUE}[INFO]${RESET} Desktop manager found Gnome ${RESET}"
+elif [[ "$_DMAN" =~ "xfce" ]]; then
+    echo -e "\n ${BLUE}[INFO]${RESET} Desktop manager found Xfce ${RESET}"
+else 
+	echo -e "\n ${YELLOW}[WARN]${RESET} The desktop manager not supported. Only Gnome and Xfce supported for now...${RESET}"
+fi
+
+
+
+
 #### Add gnome keyboard shortcuts ####
 #Add CTRL+ALT+T for terminal, same as Ubuntu
 #Bindings are hardcoded for now.
