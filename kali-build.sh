@@ -159,10 +159,8 @@ echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Checking ${BLUE}hostname${RES
 if [ "$hostname" = "kali" ]; then
 	echo -e " ${YELLOW}[*]${RESET} ${BOLD}Hostname is set to default.\n No changes applied${RESET}"
 else
-	hostname $hostname
-	#Make sure it remains after reboot
-	file=/etc/hostname; [ -e "$file" ]
-	echo "$(hostname)" > "$file"
+  #hostnamectl combines setting hostname and updating /etc/hostname
+  hostnamectl set-hostname $hostname
 
 	#Changes must applied in hosts file too
 	file=/etc/hosts; [ -e "$file" ]
@@ -219,7 +217,7 @@ if [[ "$_DMAN" =~ "gnome" ]]; then
     echo -e "\n ${BLUE}[INFO]${RESET} Desktop manager found Gnome ${RESET}"
 elif [[ "$_DMAN" =~ "xfce" ]]; then
     echo -e "\n ${BLUE}[INFO]${RESET} Desktop manager found Xfce ${RESET}"
-else 
+else
 	echo -e "\n ${YELLOW}[WARN]${RESET} The desktop manager not supported. Only Gnome and Xfce supported for now...${RESET}"
 fi
 
@@ -358,6 +356,17 @@ if [ -s $file ]; then
   sed -i -e 's/com.install4j.runtime.installer.Installer/com.install4j.runtime.installer.Installer -q/g' $file
   sh $file
   rm "$file"
+fi
+
+#### Install Postman (64bit for now)####
+(( STAGE++ ))
+wget --content-disposition 'https://dl.pstmn.io/download/latest/linux64' -P ~/Downloads/
+
+file=`ls /root/Downloads/Postman-linux*.tar.gz`
+if [ -s "$file" ]; then
+  echo -e " ${YELLOW}[i]${RESET} ${BOLD}Installing Postman${RESET}"
+  tar -xzf "$file" -C /opt/
+  ln -s /opt/Postman/Postman /usr/local/bin/Postman
 fi
 
 #Create directory structure to dowonload tools
