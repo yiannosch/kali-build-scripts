@@ -41,6 +41,9 @@ BLUE="\033[01;34m"     # Heading
 BOLD="\033[01;01m"     # Highlight
 RESET="\033[00m"       # Normal
 
+####-- Get OS Architecture
+OS_ARCH="$(dpkg --print-architecture)"
+
 ####-- Monitor progress --####
 STAGE=0                                                           # Where are we up to
 TOTAL="$( grep '(${STAGE}/${TOTAL})' $0 | wc -l;(( TOTAL-- )))"   # How many things have we got todo
@@ -347,8 +350,13 @@ update-rc.d postgresql enable
 (( STAGE++ ))
 echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Installing ${BLUE}SoapUI ${RESET}"
 #Download the sh installer
-wget https://s3.amazonaws.com/downloads.eviware/soapuios/5.5.0/SoapUI-x64-5.5.0.sh -P ~/Downloads/
-file="/root/Downloads/SoapUI-x64-5.5.0.sh"
+if [ "$OS_ARCH" = "amd64" ]; then
+  wget --content-disposition 'https://s3.amazonaws.com/downloads.eviware/soapuios/5.5.0/SoapUI-x64-5.5.0.sh' -P ~/Downloads/
+else
+  wget --content-disposition 'https://s3.amazonaws.com/downloads.eviware/soapuios/5.5.0/SoapUI-x32-5.5.0.sh' -P ~/Downloads/
+fi
+
+file=`ls /root/Downloads/SoapUI-x*.sh`
 # Search for installer in tmp, Downloads and current directory
 if [ -s $file ]; then
   echo -e " ${YELLOW}[i]${RESET} ${BOLD}Modifying SoapUI installer.\Proceeding with installation${RESET}"
@@ -358,9 +366,13 @@ if [ -s $file ]; then
   rm "$file"
 fi
 
-#### Install Postman (64bit for now)####
+#### Install Postman####
 (( STAGE++ ))
-wget --content-disposition 'https://dl.pstmn.io/download/latest/linux64' -P ~/Downloads/
+if [ "$OS_ARCH" = "amd64" ]; then
+  wget --content-disposition 'https://dl.pstmn.io/download/latest/linux64' -P ~/Downloads/
+else
+  wget --content-disposition 'https://dl.pstmn.io/download/latest/linux32' -P ~/Downloads/
+fi
 
 file=`ls /root/Downloads/Postman-linux*.tar.gz`
 if [ -s "$file" ]; then
