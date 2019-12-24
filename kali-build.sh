@@ -457,22 +457,22 @@ mkdir -p "${ffpath}/"
 
 # Wappalyzer
 echo -e " ${YELLOW}[i]${RESET} Downloading ${YELLOW}${BOLD}Wappalyzer${RESET}"
-timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/3398489/wappalyzer-5.8.4-fx.xpi?src=dp-btn-primary" -o "$ffpath/wappalyzer@crunchlabz.com.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}Wappalyzer${RESET}" 1>&2
+timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/3435895/wappalyzer-5.8.5-fx.xpi?src=dp-btn-primary" -o "$ffpath/wappalyzer@crunchlabz.com.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}Wappalyzer${RESET}" 1>&2
 # Foxyproxy standard
 echo -e " ${YELLOW}[i]${RESET} Downloading ${YELLOW}${BOLD}FoxyProxy standard${RESET}"
-timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/3426955/foxyproxy_standard-7.4-an+fx.xpi?src=dp-btn-primary" -o "$ffpath/foxyproxy@eric.h.jung.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}FoxyProxy standard${RESET}" 1>&2
+timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/3466053/foxyproxy_standard-7.4.2-an+fx.xpi?src=dp-btn-primary" -o "$ffpath/foxyproxy@eric.h.jung.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}FoxyProxy standard${RESET}" 1>&2
 # Cookies and headers analyser
 echo -e " ${YELLOW}[i]${RESET} Downloading ${YELLOW}${BOLD}Cookies and headers analyser${RESET}"
-timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/858683/cookies_and_http_headers_analyser-2.6-an+fx-windows.xpi?src=dp-btn-primary" -o "$ffpath/{637ac5a9-47b3-475b-b724-f455f5a56897}.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}Cookies and HTTP headers analyser${RESET}" 1>&2
+timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/858681/cookies_and_http_headers_analyser-2.6-an+fx-linux.xpi?src=dp-btn-primary" -o "$ffpath/{637ac5a9-47b3-475b-b724-f455f5a56897}.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}Cookies and HTTP headers analyser${RESET}" 1>&2
 # Web developer toolbar
 echo -e " ${YELLOW}[i]${RESET} Downloading ${YELLOW}${BOLD}Web developer toolbar${RESET}"
-timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/773845/web_developer-2.0.1-an+fx.xpi?src=dp-btn-primary" -o "$ffpath/{c45c406e-ab73-11d8-be73-000a95be3b12}.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}Web developer toolbar${RESET}" 1>&2
-# Cookie editor
-echo -e " ${YELLOW}[i]${RESET} Downloading ${YELLOW}${BOLD}Cookie editor${RESET}"
-timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/1132754/cookie_editor-0.1.3.1-an+fx.xpi?src=dp-btn-primary" -o "$ffpath/{48df221a-8316-4d17-9191-7fc5ea5f14c0}.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}Cookie editor${RESET}" 1>&2
+timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/3470301/web_developer-2.0.4-an+fx.xpi?src=dp-btn-primary" -o "$ffpath/{c45c406e-ab73-11d8-be73-000a95be3b12}.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}Web developer toolbar${RESET}" 1>&2
+# Cookie quick manager
+echo -e " ${YELLOW}[i]${RESET} Downloading ${YELLOW}${BOLD}Cookie quick manager${RESET}"
+timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/3343599/cookie_quick_manager-0.5rc2-an+fx.xpi?src=dp-btn-primary" -o "$ffpath/{60f82f00-9ad5-4de5-b31c-b16a47c51558}.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}Cookie quick manager{RESET}" 1>&2
 # React developer tools
 echo -e " ${YELLOW}[i]${RESET} Downloading ${YELLOW}${BOLD}React developer tools${RESET}"
-timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/3417593/react_developer_tools-4.2.0-fx.xpi?src=dp-btn-primary" -o "$ffpath/@react-devtools.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}React developer tools${RESET}" 1>&2
+timeout 300 curl --progress -k -L -f "https://addons.mozilla.org/firefox/downloads/file/3472587/react_developer_tools-4.3.0-fx.xpi?src=dp-btn-primary" -o "$ffpath/@react-devtools.xpi" || echo -e " ${RED}[!]${RESET} Issue downloading ${BOLD}React developer tools${RESET}" 1>&2
 
 #--- Installing extensions
 for FILE in $(find "${ffpath}" -maxdepth 1 -type f -name '*.xpi'); do
@@ -540,16 +540,22 @@ fi
 #### Install Nessus ####
 (( STAGE++ ))
 echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) ${BOLD}Installing ${BLUE}Nessus${RESET}"
+if [ "$OS_ARCH" = "amd64" ]; then
+  wget --content-disposition 'https://www.tenable.com/downloads/api/v1/public/pages/nessus/downloads/10190/download?i_agree_to_tenable_license_agreement=true' -P ~/Downloads/
+else
+  wget --content-disposition 'https://www.tenable.com/downloads/api/v1/public/pages/nessus/downloads/10191/download?i_agree_to_tenable_license_agreement=true' -P ~/Downloads/
+fi
 
-#Hardcoded version number
-wget -c "https://www.tenable.com/downloads/api/v1/public/pages/nessus/downloads/10079/download?i_agree_to_tenable_license_agreement=true" -O $HOME/Downloads/Nessus-8.5.1-debian6_amd64.deb
-dpkg -i $HOME/Downloads/Nessus-*-debian6_amd64.deb
-sleep 2
-#Cleaning up
-rm $HOME/Downloads/Nessus-*-debian6_amd64.deb
-#Starting the service
-systemctl start nessusd
-sleep 3
+file=`ls /root/Downloads/Nessus-*.deb`
+if [ -s "$file" ]; then
+  dpkg -i "$file"
+  sleep 2
+  #Cleaning up
+  rm "$file"
+  #Starting the service
+  systemctl start nessusd
+  sleep 3
+fi
 
 if [ -f "/opt/nessus/sbin/nessuscli" ]; then
   if [ ! -z "$nessusKey" ]; then
