@@ -1,17 +1,10 @@
 #!/bin/bash
 
 ##Todo:
-# 1) install burpsuite pro (pending)
-# 2) activate nessus ?
-# 3) install rpclient, rusers, nbtscan-unixwiz
-# 4) change UI
-# 5) Change background image
-# 6) Generate ssh keys sshkeygen
-# 7) ZSH is asking if you want to change your default shell during installation. get rid of this???
-# 8) Install blodhound + neo4j
-# 9) Add firefox bookmarks (pending) useful bookmarks + nessus, bloodhound
-# 10) Crete a tools folder and install more tools web, infra, web services network etc.
-# 11) Install EyeWitness and GoWitness
+# 1) Install blodhound + neo4j
+# 2) Add firefox bookmarks (pending) useful bookmarks + nessus, bloodhound
+# 3) Crete a tools folder and install more tools web, infra, web services network etc.
+# 4) Install EyeWitness and GoWitness
 #  tools: hoppy, drupwn, drupscan, testssl, eicar,fuzzdb, IIS_shortname scanner, qualys ssllabs, redsnarf, ysoserial, barmie, .net serial
 # unicorn,
 
@@ -28,10 +21,19 @@ hostname="kali"
 inputSources="[('xkb', 'gb')]" #Set keyboard to gb
 # Add your preferred keyboard layouts such as [('xkb', 'gb'), ('xkb', 'us'), ('xkb', 'gr')]
 
-
 ####-- Licenses and Keys --####
 nessusKey=""           # Nessus Pro license key
 sshPass=""             # Password for ssh private key
+
+####-- Get OS Architecture
+OS_ARCH="$(dpkg --print-architecture)"
+
+####-- Monitor progress --####
+STAGE=0                                                           # Where are we up to
+TOTAL="$( grep '(${STAGE}/${TOTAL})' $0 | wc -l;(( TOTAL-- )))"   # How many things have we got to do
+
+####-- Other settings --####
+CHECKDNS=google.com
 
 ####-- (Cosmetic) Colour output --####
 RED="\033[01;31m"      # Issues/Errors
@@ -41,15 +43,6 @@ BLUE="\033[01;34m"     # Heading
 BOLD="\033[01;01m"     # Highlight
 RESET="\033[00m"       # Normal
 
-####-- Get OS Architecture
-OS_ARCH="$(dpkg --print-architecture)"
-
-####-- Monitor progress --####
-STAGE=0                                                           # Where are we up to
-TOTAL="$( grep '(${STAGE}/${TOTAL})' $0 | wc -l;(( TOTAL-- )))"   # How many things have we got todo
-
-####-- Other settings --####
-CHECKDNS=google.com
 
 ######### Start ##########
 
@@ -58,7 +51,7 @@ CHECKDNS=google.com
 # 	echo -e ' '${RED}'[!]'${RESET}" This script must be ${RED}run as root${RESET}. Quitting..." 1>&2
 #   exit 1
 # else
-#   echo -e " ${BLUE}[*]${RESET} ${BOLD}Kali Linux 2019.2 build script${RESET}"
+#   echo -e " ${BLUE}[*]${RESET} ${BOLD}Kali Linux build script${RESET}"
 # fi
 
 
@@ -148,7 +141,7 @@ if [[ "$_KRL" -gt 1 ]]; then
   [[ -z "$_KRL" ]] && echo -e "${RED}[!]${RESET} You are not using the latest kernel" 1>&2 && echo -e " ${YELLOW}[i]${RESET} You have it downloaded & installed, just not using it. You need to **reboot**"
 fi
 
-#install linux headers
+#Install linux headers
 (( STAGE++ ))
 echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Checking for ${BLUE}kernel headers${RESET}"
 apt -y -q install "linux-headers-$(uname -r)"
@@ -193,7 +186,6 @@ sed -i '
 s/^# en_GB/en_GB/
 s/^# en_US/en_US/
 ' /etc/locale.gen   #en_GB en_US
-
 locale-gen
 
 echo -e 'LC_ALL=en_GB.UTF-8\nLANG=en_GB.UTF-8\nLANGUAGE=en_GB:en' > /etc/default/locale
@@ -212,8 +204,6 @@ ln -sf "/usr/share/zoneinfo/$(cat /etc/timezone)" /etc/localtime
 
 ####Detect desktop manager. Support for gnome and xfce for Kali 2019.4
 
-
-
 _DMAN=$(ps -A | egrep -i "gnome|xfce")
 
 if [[ "$_DMAN" =~ "gnome" ]]; then
@@ -223,8 +213,6 @@ elif [[ "$_DMAN" =~ "xfce" ]]; then
 else
 	echo -e "\n ${YELLOW}[WARN]${RESET} The desktop manager not supported. Only Gnome and Xfce supported for now...${RESET}"
 fi
-
-
 
 
 #### Add gnome keyboard shortcuts ####
@@ -262,6 +250,16 @@ gsettings set org.gnome.desktop.wm.keybindings switch-windows "['<Alt>Tab']"
 
 #Enable nano line numbering
 sed -i 's/^# set linenumbers/set linenumbers/' /etc/nanorc
+
+#### Installing additional tools ####
+(( STAGE++ ))
+echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) ${BOLD}Installing additional tools ${RESET}"
+declare -a toolsList=("nbtscan-unixwiz" "rstat-client" "nfs-common" "nis" "rusers" "bloodhound" "testssl.sh" "zstd" "terminator" "golang-go" "python3-pip")
+
+# Bloodhound url http://localhost:7474
+for val in ${toolsList[@]}; do
+  DEBIAN_FRONTEND=noninteractive apt -y -q install $val
+done
 
 ####Install zsh from github####
 #Download oh-my-zsh
@@ -391,11 +389,60 @@ mkdir -p -v -Z "/root/Tools/Webapp/CMS/Wordpress" "/root/Tools/Webapp/CMS/Drupal
 "/root/Tools/Configuration/Cloud/GCP" "/root/Tools/Configuration/Containers/Docker/" \
 "/root/Tools/Configuration/Containers/Kubernetes"
 
-#Download tools
+####-- Install web app tools
 pip install droopescan
 
+#docker run -it --name photon
 git clone https://github.com/immunIT/drupwn.git "/root/Tools/Webapp/CMS/Drupal/drupwn"
-python3 setup.py install
+python3 /root/Tools/Webapp/CMS/Drupal/drupwn/setup.py install
+
+
+####-- Install OSINT tools
+#Install Photon (incredibly fast crawler designed for OSINT.)
+git clone https://github.com/s0md3v/Photon.git "/root/Tools/OSINT/Photon"
+docker build -t photon "/root/Tools/OSINT/Photon/"
+
+#To execute Photon run:
+#docker run -it --name photon photon:latest -u google.com
+#For more info visit https://github.com/s0md3v/Photon
+
+#Install gitrob (reconnaissance tool for GitHub organizations)
+wget 'https://github.com/michenriksen/gitrob/releases/download/v2.0.0-beta/gitrob_linux_amd64_2.0.0-beta.zip' -P "/root/Tools/OSINT/"
+unzip -q "/root/Tools/OSINT/gitrob_linux_amd64_2.0.0-beta.zip" -d "/root/Tools/OSINT/gitrob"
+rm "/root/Tools/OSINT/gitrob_linux_amd64_2.0.0-beta.zip"
+#For more info visit https://github.com/michenriksen/gitrob
+
+#Install Sn1per Community Edition (an automated scanner that can be used during a penetration test to enumerate and scan for vulnerabilities.)
+wget 'https://raw.githubusercontent.com/1N3/Sn1per/master/Dockerfile' -P "/root/Tools/OSINT/Sn1per/"
+docker build -t sn1per-docker "/root/Tools/OSINT/Sn1per/"
+#For more info visit https://github.com/1N3/Sn1per
+
+#Install Sublist3r (a subdomain enumeration tool)
+git clone https://github.com/aboul3la/Sublist3r.git "/root/Tools/OSINT/Sublist3r"
+pip3 install -r "/root/Tools/OSINT/Sublist3r/requirements.txt"
+#For more info visit https://github.com/aboul3la/Sublist3r
+
+#Install Subfinder (a subdomain discovery tool that discovers valid subdomains for websites by using passive online sources.)
+wget 'https://github.com/projectdiscovery/subfinder/releases/download/v2.2.4/subfinder-linux-amd64.tar' -P "/root/Tools/OSINT/Subfinder/"
+tar -xzvf /root/Tools/OSINT/Subfinder/subfinder-linux-amd64.tar
+cp /root/Tools/OSINT/Subfinder/subfinder-linux-amd64 /usr/local/bin/subfinder
+#For more info visit https://github.com/projectdiscovery/subfinder
+
+#Install dnstwist (find similar-looking domains that adversaries can use to attack you.)
+git clone https://github.com/elceef/dnstwist.git "/root/Tools/OSINT/dnstwist"
+cd "/root/Tools/OSINT/dnstwist" && /root/.local/bin/pipenv --three
+
+#Install Raccoon (an offensive security tool for reconnaissance and information gathering)
+pip3 install raccoon-scanner
+#For more info visit https://github.com/evyatarmeged/Raccoon
+
+#Install spiderfoot (an open source intelligence (OSINT) automation tool.)
+git clone https://github.com/smicallef/spiderfoot.git "/root/Tools/OSINT/spiderfoot"
+cd "/root/Tools/OSINT/spiderfoot" && /root/.local/bin/pipenv --two
+#To run spiderfoot execute:
+# 1) /root/.local/bin/pipenv run python sf.py
+# 2) /root/.local/bin/pipenv run python sfcli.py
+#For more info visit https://www.spiderfoot.net/documentation/
 
 #ScoutSuite
 #cd root/Tools/Configuration/Cloud/
@@ -410,24 +457,6 @@ if [ -s "$file" ]; then
 else
 	echo "${RED}[!]${RESET} Something went wrong. Installation of ${RED}${BOLD}CrackMapExec ${RESET}has failed!"
 fi
-
-
-#### Install crackmapexec with pipenv ####
-(( STAGE++ ))
-echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Installing ${BLUE}crackmapexec ${RESET}"
-apt install -y -q libssl-dev libffi-dev python-dev build-essential python-pip
-sleep 5
-pip install --user pipenv
-git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec "$HOME/Tools/Infrastructure/Linux/CrackMapExec"
-
-file="$HOME/.local/bin/pipenv"
-if [ -s "$file" ]; then
-	cd "$HOME/Tools/Infrastructure/Linux/CrackMapExec" && "$file" install
-	"$file" run python setup.py install
-else
-	echo "${RED}[!]${RESET} Something went wrong. Installation of ${RED}${BOLD}CrackMapExec ${RESET}has failed!"
-fi
-
 
 # Download dirble latest release from github
 (( STAGE++ ))
@@ -620,17 +649,6 @@ ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa_key -P "" >/dev/null
 ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -P "$sshPass" >/dev/null
 
 
-#### Installing additional tools ####
-(( STAGE++ ))
-echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) ${BOLD}Installing additional tools ${RESET}"
-declare -a toolsList=("nbtscan-unixwiz" "rstat-client" "nfs-common" "nis" "rusers" "bloodhound" "testssl.sh" "zstd" "terminator")
-
-# Bloodhound url http://localhost:7474
-
-for val in ${toolsList[@]}; do
-  DEBIAN_FRONTEND=noninteractive apt -y -q install $val
-done
-
 updatedb
 echo -e " ${BLUE}[***]${RESET}${BOLD} Installation finished. A reboot is require to apply all changes.${RESET}\n Would you like to reboot know [Y/n]?"
 IFS=''
@@ -649,5 +667,4 @@ do
     sleep 3
     reboot
   fi
-  #test
 done
