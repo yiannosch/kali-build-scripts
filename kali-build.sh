@@ -8,12 +8,12 @@
 #  tools: hoppy, drupwn, drupscan, testssl, eicar,fuzzdb, IIS_shortname scanner, qualys ssllabs, redsnarf, ysoserial, barmie, .net serial
 # unicorn,
 
-####Get latest version####
-#wget -q https://github.com/yiannosch/kali-build-scripts/blob/master/kali-build.sh && bash kali-build.sh
+#### Get latest version ####
+#wget -q --content-disposition https://raw.githubusercontent.com/yiannosch/kali-build-scripts/master/kali-build.sh && bash kali-build.sh
 
-####--Defaults--####
+#### Defaults ####
 
-####--Timezone and keyboard settings--####
+#### Timezone and keyboard settings ####
 keyboardApple=false       		# Using a Apple/Macintosh keyboard (non VM)?      [ --osx ]
 keyboardlayout="gb"           # Set keyboard layout                             [ --keyboard gb ]
 timezone="Europe/London"      # Set timezone location                           [ --timezone Europe/London ]
@@ -32,10 +32,11 @@ OS_ARCH="$(dpkg --print-architecture)"
 STAGE=0                                                           # Where are we up to
 TOTAL="$( grep '(${STAGE}/${TOTAL})' $0 | wc -l;(( TOTAL-- )))"   # How many things have we got to do
 
-####-- Other settings --####
+#### Other settings ####
 CHECKDNS=google.com
+OSDISTRO="$(cat /etc/os-release |)"
 
-####-- (Cosmetic) Colour output --####
+#### (Cosmetic) Colour output ####
 RED="\033[01;31m"      # Issues/Errors
 GREEN="\033[01;32m"    # Success
 YELLOW="\033[01;33m"   # Warnings/Information
@@ -46,13 +47,19 @@ RESET="\033[00m"       # Normal
 
 ######### Start ##########
 
-#Check if runnign as root. Return error otherwise
-# if [[ ${EUID} -ne 0 ]]; then #Don't need it for now
-# 	echo -e ' '${RED}'[!]'${RESET}" This script must be ${RED}run as root${RESET}. Quitting..." 1>&2
-#   exit 1
-# else
-#   echo -e " ${BLUE}[*]${RESET} ${BOLD}Kali Linux build script${RESET}"
-# fi
+#### Check if runnign as root. Exit otherwise ####
+#Need this for Kali 2020.1 and later
+if [[ ${EUID} -ne 0 ]]; then
+	echo -e " ${RED}[!]${RESET} ${BOLD} This script must be ${RED}run as root. Exiting...${RESET}" 1>&2
+	exit 1
+else
+	#Check if OS is Kali
+	if [[ "$OSDISTRO" != "Kali GNU/Linux" ]]; then
+		echo -e " ${RED}[*]${RESET} ${BOLD} OS is not Kali Linux. Only Kali is supported${RESET}"
+		exit 1
+	fi
+	echo -e " ${BLUE}[*]${RESET} ${BOLD}Kali Linux build script${RESET}"
+fi
 
 
 #### Parsing command line arguments ####
@@ -93,8 +100,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt -q update && APT_LISTCHANGES_FRONTEND=none apt -o Dpkg::Options::="--force-confnew" -y -q full-upgrade --fix-missing
 apt -y -q autoremove && apt -y -q autoclean
 
-####Detect VM environment####
-#Only VMware supported for now
+#### Detect VM environment ####
 (( STAGE++ ))
 echo -e " ${BLUE}[*]${RESET} (${STAGE}/${TOTAL})${BOLD} Identifying running environment...${RESET}"
 if (dmidecode | grep -i vmware); then
@@ -129,7 +135,7 @@ else
 fi
 
 #Check kernel
-#Find installed kernels packages
+#Find installed kernel packages
 (( STAGE++ ))
 echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) Checking ${BLUE}kernel version ${RESET}"
 _KRL=$(dpkg -l | grep linux-image- | grep -vc meta)
