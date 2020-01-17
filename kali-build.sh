@@ -374,10 +374,24 @@ fi
 
 file=`ls /root/Downloads/Postman-linux*.tar.gz`
 if [ -s "$file" ]; then
-  echo -e " ${YELLOW}[i]${RESET} ${BOLD}Installing Postman${RESET}"
+  echo -e "\n ${YELLOW}[i]${RESET} ${BOLD}Installing Postman${RESET}"
   tar -xzf "$file" -C /opt/
-  ln -s /opt/Postman/Postman /usr/local/bin/Postman
+  ln -s /opt/Postman/Postman /usr/local/bin/postman
 fi
+
+cat << EOF > /usr/share/applications/postman2.desktop
+[Desktop Entry]
+Name=Postman
+GenericName=API Client
+X-GNOME-FullName=Postman API Client
+Comment=Make and view REST API calls and responses
+Keywords=api;
+Exec=/opt/Postman/Postman
+Terminal=false
+Type=Application
+Icon=/opt/Postman/app/resources/app/assets/icon.png
+Categories=Development;Utilities;
+EOF
 
 #Create directory structure to dowonload tools
 (( STAGE++ ))
