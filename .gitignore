@@ -1,0 +1,3 @@
+#SonarQube configuration file
+sonar-project.properties
+.scannerwork/

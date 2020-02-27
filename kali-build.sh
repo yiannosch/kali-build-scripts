@@ -590,9 +590,9 @@ fi
 (( STAGE++ ))
 echo -e "\n ${BLUE}[*]${RESET} (${STAGE}/${TOTAL}) ${BOLD}Installing ${BLUE}Nessus${RESET}"
 if [ "$OS_ARCH" = "amd64" ]; then
-  wget --content-disposition 'https://www.tenable.com/downloads/api/v1/public/pages/nessus/downloads/10190/download?i_agree_to_tenable_license_agreement=true' -P ~/Downloads/
+  wget --content-disposition 'https://www.tenable.com/downloads/api/v1/public/pages/nessus/downloads/10444/download?i_agree_to_tenable_license_agreement=true' -P ~/Downloads/
 else
-  wget --content-disposition 'https://www.tenable.com/downloads/api/v1/public/pages/nessus/downloads/10191/download?i_agree_to_tenable_license_agreement=true' -P ~/Downloads/
+  wget --content-disposition 'https://www.tenable.com/downloads/api/v1/public/pages/nessus/downloads/10445/download?i_agree_to_tenable_license_agreement=true' -P ~/Downloads/
 fi
 
 file=`ls /root/Downloads/Nessus-*.deb`
@@ -663,10 +663,11 @@ do
 done
 
 # Generate new SSH keys
-ssh-keygen -t ecdsa -b 521 -f /etc/ssh/ssh_host_ecdsa_key -P "" >/dev/null
-ssh-keygen -o -a 100 -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -P "" >/dev/null
-ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa_key -P "" >/dev/null
+ssh-keygen -t ecdsa -b 521 -f /etc/ssh/ssh_host_ecdsa_key -P "$sshPass" >/dev/null
+ssh-keygen -o -a 100 -t ed25519 -f /etc/ssh/ssh_host_ed25519_key -P "$sshPass" >/dev/null
+ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa_key -P "$sshPass" >/dev/null
 ssh-keygen -t rsa -b 4096 -f /root/.ssh/id_rsa -P "$sshPass" >/dev/null
+ssh-keygen -o -a 100 -t ed25519 -f /root/.ssh/id_ed25519 -P "$sshPass" >/dev/null
 
 
 updatedb

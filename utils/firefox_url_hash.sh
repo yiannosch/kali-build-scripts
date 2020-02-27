@@ -42,9 +42,8 @@ hash_simple()
 
 url_hash()
 {
-    prefix=$1
-    arrPrefix=$(echo "$1" | cut -f1 -d":")
-    var6=$(hash_simple $arrPrefix)
+    prefix=$(echo "$1" | cut -f1 -d":")
+    var6=$(hash_simple $prefix)
     var7=$(($var6 & 0x0000FFFF))
     var8=$(($var7 << 32))
     var9=$(hash_simple $1)
