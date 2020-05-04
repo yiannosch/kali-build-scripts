@@ -9,7 +9,7 @@ BOLD="\033[01;01m"     # Highlight
 RESET="\033[00m"       # Normal
 
 ###--- Configure firefox ---###
-# Start Firefox for first time, background proces
+# Start Firefox for first time, background process
 DISPLAY=:0.0 firefox-esr &
 sleep 3s                    # Add delay to make sure that the FF profile has been created
 
@@ -21,8 +21,8 @@ ffpath="$(find ~/.mozilla/firefox/*.default-esr/ -maxdepth 0 -mindepth 0 -type d
 mkdir -p "${ffpath}/"
 
 # Addons list
-addon_name=("wappalyzer" "foxyproxy-standard" "cookies-and-headers-analyser" "web-developer" "edit-cookie" "react-devtools" "retire-js")
-addon_file=("wappalyzer@crunchlabz.com.xpi" "foxyproxy@eric.h.jung.xpi" "{637ac5a9-47b3-475b-b724-f455f5a56897}.xpi" "{c45c406e-ab73-11d8-be73-000a95be3b12}.xpi" "{48df221a-8316-4d17-9191-7fc5ea5f14c0}.xpi" "@react-devtools.xpi" "@retire.js.xpi")
+addon_name=("wappalyzer" "foxyproxy-standard" "cookies-and-headers-analyser" "web-developer" "cookie-quick-manager" "react-devtools" "retire-js")
+addon_file=("wappalyzer@crunchlabz.com.xpi" "foxyproxy@eric.h.jung.xpi" "{637ac5a9-47b3-475b-b724-f455f5a56897}.xpi" "{c45c406e-ab73-11d8-be73-000a95be3b12}.xpi" "{60f82f00-9ad5-4de5-b31c-b16a47c51558}.xpi" "@react-devtools.xpi" "@retire.js.xpi")
 
 for i in ${!addon_name[@]};
 do
